@@ -13,6 +13,10 @@ false,true}boolean;
 typedef enum lbType{/*label types*/
 DATA_LABEL,INST_LABEL,EX_LABEL}lbType;
 
+typedef enum lnType{/*line type data, instruction,external*/
+DATA,INST,EX}lnType;
+
+
 typedef struct labelAd{/*store the labels and address*/
 	char label[LB_NAME_SIZE];/*name of the label*/
 	int address;/*address of the label*/
@@ -35,5 +39,4 @@ typedef struct labelTable{/*tbale of label*/
 }labelTable;
 
 boolean addLb(char* label, lbType labelType);/*add label to label table*/
-
 
