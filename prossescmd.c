@@ -4,6 +4,8 @@ boolean firstPass(FILE *fp);
 boolean secondPass(FILE *fp);
 boolean getword(char* line,char *word, int num);
 boolean getLineInfo(char* line, int findex);
+void handleIC(lnType lineType,char *line,char **words, int i);
+void freeWords(char **words);
 
 
 boolean prossesAsm(char* fileName)
@@ -73,71 +75,123 @@ boolean getword(char* line,char *word, int num){
 	return find;
 }
 
+void handleIC(lnType lineType,char *line,char **words, int i){/*handle internale counter by the type of label
+(INST = 'add','move...,DATA =.string "asf",.data 120,2, EXTERN = .extern)*/
+	i++;/*move to operand/data/extern word*/
+        words = realloc(words,(i+1) *sizeof(char*));;
+	if(lineType == INST){
+	switch (*(*(words+i)))
+		{
+			case '#':
+			i++;
+			words = realloc(words,(i+1) *sizeof(char*));;
+			if(getword(line,*(words+i),i))
+				IC+=3;
+			else IC+=2;
+			break;
+			
+			case 'r':
+			i++;
+			words = realloc(words,(i+1) *sizeof(char*));;
+			if(getword(line,*(words+i),i))
+				if(**(words+i)=='r')
+					IC+=2;
+				else IC+=3;
+			else IC+=2;
+			
+			case '*':
+			i++;
+			words = realloc(words,(i+1) *sizeof(char*));;
+			if(getword(line,*(words+i),i))
+				if(**(words+i)=='*')
+					IC+=2;
+				else IC+=3;
+			else IC+=2;
+			
+			default:
+			i++;
+			words = realloc(words,(i+1) *sizeof(char*));
+			if(getword(line,*(words+i),i))
+				IC+=3;
+			else IC+=2;
+		}
+		}else if(lineType == DATA){
+			if(strcmp(*(words+i),".data")==0){
+            						while(*(words+i)){/*while there are stil variables*/
+            							i++;
+            							words = realloc(words,(i+1) *sizeof(char*));
+            							if(getword(line,*(words+i),i))
+            								IC++;	
+            						}
+            		}else if(strcmp(*(words+i),".string")==0){ 
+            			i++;
+            			words = realloc(words,(i+1) *sizeof(char*));
+            			if(getword(line,*(words+i),i))
+            				if(**(words+i) == '"' && *(*(words+i) +strlen(*(words+i))) == '"')
+            					IC+=strlen(*(words+i)) - 2 + 1;/*ignor the " in the begining and end of the string but add /0 in the 														end*/	
+            			}
+		}else if(lineType == EX){
+			IC++;		
+		}
 
+}
 
 boolean getLineInfo(char* line, int findex){
    
         char **words = NULL;
-        char *lable=NULL;
+        char *label=NULL;
         boolean notEmpty;
         int i=0;
          words = realloc(words,(i+1) *sizeof(char*));
         notEmpty = getword(line,*words,i);/*check if the line is not empty, if not save first word to fword*/
         if(notEmpty){/*if the row isnt emty (contain ' ' or tab only)*/
         	if(Islabel(*words)){/*if it's label*/
-        	    lable = *words;
-        	    lable[strlen(lable)-1] = '\0';  /*remove : at the end of label*/
-         	   i++;/*next word index*/
-          	  words = realloc(words,(i+1) *sizeof(char*));
-          	  if(getword(line,*(words+i),i)){/*if word in the place i exist*/
-            		if(isCmd(*(words+i))){
-            			addLb(lable, INST_LABEL);
-            			i++;/*move to operand word*/
-            			words = realloc(words,(i+1) *sizeof(char*));;
-            			if(getword(line,*(words+i),i))
-            				switch (*(*(words+i)))
-            				{
-            					case '#':
-            					i++;
-            					words = realloc(words,(i+1) *sizeof(char*));;
-            					if(getword(line,*(words+i),i))
-            						IC+=2;
-            					else IC+=1;
-            					break;
-            					
-            					case 'r':
-            					i++;
-            					words = realloc(words,(i+1) *sizeof(char*));;
-            					if(getword(line,*(words+i),i))
-            						if(**(words+i)=='r')
-            							IC+=1;
-            						else IC+=2;
-            					else IC+=1;
-            					
-            					case '*':
-            					i++;
-            					words = realloc(words,(i+1) *sizeof(char*));;
-            					if(getword(line,*(words+i),i))
-            						if(**(words+i)=='*')
-            							IC+=1;
-            						else IC+=2;
-            					else IC+=1;
-            					
-            					default:
-            					i++;
-            					words = realloc(words,(i+1) *sizeof(char*));
-            					if(getword(line,*(words+i),i))
-            						IC+=2;
-            					else IC+=1;
-            				}
+        		label = *words;
+        		label[strlen(label)-1] = '\0';  /*remove : at the end of label*/
+         	 	i++;/*next word index*/
+          	  	words = realloc(words,(i+1) *sizeof(char*));
+          	  	if(getword(line,*(words+i),i)){/*if word in the place i exist*/
+            			if(isCmd(*(words+i))){
+            				addLb(label, INST_LABEL);
+            				handleIC(INST,line,words,i);
             			}else{/*not command after label*/
             				printf("data command");
+            				if(strcmp(*(words+i),".data")==0 || strcmp(*(words+i),".string")==0){
+            					addLb(label, DATA_LABEL);
+           					handleIC(DATA,line,words,i);
+            				}else if(strcmp(*(words+i),".extern")==0){
+            					addLb(label, EX_LABEL);
+            					handleIC(EX,line,words,i);
+            				}
             			}
 			}		   
-		} 
-		return true;	
-	}
+		}else if(isCmd(*(words+i))){
+            				addLb(label, INST_LABEL);
+            				handleIC(INST,line,words,i);
+            		}else if(strcmp(*(words+i),".data")==0 || strcmp(*(words+i),".string")==0){/*not command after label*/
+            				addLb(label,DATA);
+           				handleIC(DATA_LABEL,line,words,i);
+            		}else if(strcmp(*(words+i),".extern")==0){/*external line*/
+            				addLb(label, EX);
+            				handleIC(EX_LABEL,line,words,i);
+            			}
+            	freeWords(words);
+           }
+	return true;	
 }
+
+void freeWords(char **words){
+	size_t n = sizeof(words)/sizeof(*words);
+	int i=0;
+	if(words!=NULL){
+		for(i=0;i<n;i++){
+			free(*(words+i));
+		}
+		free(words);
+	}
+
+}
+
 
 
    
