@@ -6,6 +6,8 @@
 #include <ctype.h>
 #define LB_NAME_SIZE 31
 #define LINE_LEN 81
+#define OP_SIZE 16
+#define OP_NAME_SIZE 4
 
 typedef enum boolean{/*define type of boolean*/
 false,true}boolean;
@@ -38,5 +40,9 @@ typedef struct labelTable{/*tbale of label*/
 	labelAd* labelAd;
 }labelTable;
 
+/*prototypes*/
+boolean Islabel(const char *str);/*check if the string is a lable*/	
 boolean addLb(char* label, lbType labelType);/*add label to label table*/
+boolean isCmd(char *str);/*check if the string is a command*/
+
 
