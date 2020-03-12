@@ -4,10 +4,25 @@ int IC=0;/*instruction counter for memory*/
 int DC=0;/*data counter for memory*/
 
 labelTable* labelT = NULL;
+char opcode[OP_SIZE][OP_NAME_SIZE]={	"mov",
+					"cmp",
+					"add",
+					"sub",
+					"lea",
+					"clr",
+					"not",
+					"inc",
+					"dec",
+					"jmp",
+					"bne",
+					"red",
+					"prn",
+					"jsr",
+					"rts",
+					"stop"
+					};	
 
-	
-
-boolean Islabel(const char *str){
+boolean Islabel(const char *str){			
     
     int len = strlen(str),i=0;
     if(str && *str && (str[len - 1] == ':')){  
@@ -54,13 +69,11 @@ boolean addLb(char* label, lbType labelType){
     	return true;
 }
 
-boolean isCmd(char *str)
-{
-	if((strcmp(str,"mov")==0)|| (strcmp(str,"cmp")==0) || (strcmp(str,"add")==0) || (strcmp(str,"add")==0) || (strcmp(str,"lea")==0) || (strcmp(str,"clr")==0) || (strcmp(str,"not")==0)  || (strcmp(str,"inc")==0) || (strcmp(str,"dec")==0) || (strcmp(str,"jmp")==0) || (strcmp(str,"bne")==0)|| (strcmp(str,"red")==0) || (strcmp(str,"prn")==0) || (strcmp(str,"jsr")==0) || (strcmp(str,"rts")==0) || (strcmp(str,"stop")==0)) 
-		return true;
+boolean isCmd(char *str){
+	int i=0;
+	for(i=0;i<OP_SIZE;i++)
+		if(strcmp(opcode[i],str) == 0)
+			return true;
 	return false;
 		
-	
-	
 }
-
