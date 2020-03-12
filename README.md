@@ -1,2 +1,2 @@
-# openu-mmn-14-program-c
+# openu-mmn-14-C assembler
 programing assignment in c
