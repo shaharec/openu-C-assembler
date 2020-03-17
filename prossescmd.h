@@ -8,3 +8,4 @@ void handleIC(lnType lineType,char *line,lineWords *words);
 void freeWords(lineWords *words);
 boolean lineSecondPass(char* line, int findex);
 void handleRAMWords(lnType lineType,char *line,lineWords *words);
+boolean getNextWordInLine(char* line,lineWords *words);
