@@ -194,7 +194,7 @@ int getRegWord(int reg,int offset){
 int getLabelWord(labelAd* label){
 	
 	unsigned int word=0;
-	word|=((label->address)<<3);/*label address in left 12 bits*/
+	word|=((label->address)<<EO_ARE);/*label address in left 12 bits*/
 	if(label->labelType==EX_LABEL)
 		word|=A_ONE;/*turn on the R bit from ARE*/
 	else	word|=A_TWO;/*turn on the E bit from ARE*/
@@ -204,7 +204,7 @@ int getLabelWord(labelAd* label){
 int getDirectWord(char *num){
 	
 	unsigned int word=0;
-	word|=(atoi(num+1)<<3);/*move the value to the last 12 bits*/
+	word|=(atoi(num+1)<<EO_ARE);/*move the value to the last 12 bits*/
 	word|=A_THREE;/*turn on the A bit from ARE*/
 	return word; 
 }
@@ -260,9 +260,8 @@ boolean isString(char* str){
 	return false;
 }
 
-void updateDataLables(int endIC){
+void updateDataLabels(int endIC){
 	int i=0;
-	printf("***endIC :%d\n",endIC);
 	if(labelT == NULL)/*check if labelT is null*/
 		return ;
 	for(i=0;i<labelT->size;i++)

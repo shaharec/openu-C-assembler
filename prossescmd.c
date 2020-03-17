@@ -49,7 +49,7 @@ boolean firstPass(FILE *fp){
 		error = !lineFirstPass(buff,fIndex);	
 	}
 	if(!error){
-		updateDataLables(IC);
+		updateDataLabels(IC);
 		printLbTable();/*print labels table*/
 	}
 	return !error;
@@ -122,32 +122,32 @@ void handleRAMWords(lnType lineType,char *line,lineWords *words){
 	switch (lineType)
 	{
 		case INST:
-		RAMWord[0]|=(isCmd(*(words->str+words->size-1))<<11);/*add opcode */
+		RAMWord[0]|=(isCmd(*(words->str+words->size-1))<<OCAM_SBIT);/*add opcode */
 		RAMWord[0]|=A_THREE;/*turn on the A bit from ARE*/ 
        	if(getNextWordInLine(line,words)){
       		switch (*(*(words->str+words->size-1)))
 			{
 				case '#':
-				RAMWord[0]|=(A_ONE<<7);/*adress methode 0 place in 7 bit*/
+				RAMWord[0]|=(A_ONE<<FOAM_SBIT);/*adress methode 0 place in 7 bit*/
 				RAMWord[1]=getDirectWord(*(words->str+words->size-1));/*get the word for # operand*/ 
 				numWords++;
 				if(getNextWordInLine(line,words)){
 					numWords++;
 					label=labelExist(*(words->str+words->size-1));/*check if second operand is label*/
 					if(label!=NULL){
-						RAMWord[0]|=(A_TWO<<3);
+						RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 						RAMWord[2]=getLabelWord(label);
 						if(label->labelType==EX_LABEL)
-							addToExT(label->label,IC+2);
+							addToExT(label->label,IC+numWords-1);
 					}else {	reg = isReg(*(words->str+words->size-1));
 							if(reg!=-1){
-								RAMWord[0]|=(A_FOUR<<3);
-								RAMWord[2] = getRegWord(reg,3);
+								RAMWord[0]|=(A_FOUR<<SOAM_SBIT);
+								RAMWord[2] = getRegWord(reg,SOAM_SBIT);
 							}else if(**(words->str+words->size-1)=='*'){
 									reg = isReg(*(words->str+words->size-1)+1);
 									if(reg!=-1){
-											RAMWord[0]|=(A_THREE<<3);
-											RAMWord[2] = getRegWord(reg,3);
+											RAMWord[0]|=(A_THREE<<SOAM_SBIT);
+											RAMWord[2] = getRegWord(reg,SOR_SBIT);
 									}else printf("error: wrong in put * before reg\n");
 							}else printf("error: unknown operator\n");
 						}
@@ -158,76 +158,82 @@ void handleRAMWords(lnType lineType,char *line,lineWords *words){
 				numWords++;
 				reg = isReg(*(words->str+words->size-1));
 				if(reg!=-1){
-					RAMWord[0]|=(A_FOUR<<7);
-					RAMWord[1] = getRegWord(reg,6);	
+					RAMWord[0]|=(A_FOUR<<FOAM_SBIT);
+					RAMWord[1] = getRegWord(reg,FOR_SBIT);	
 				}else {
 					label=labelExist(*(words->str+words->size-1));/*check if secind operand is label*/
 					if(label!=NULL){
-						RAMWord[0]|=(A_TWO<<7);
+						RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 						RAMWord[1]=getLabelWord(label);
 						if(label->labelType==EX_LABEL)
-							addToExT(label->label,IC+1);	
+							addToExT(label->label,IC+numWords-1);	
 					}else printf("error: unknown operand\n");
 				}			
 				if(getNextWordInLine(line,words)){
 					if(**(words->str+words->size-1)=='#'){
-						RAMWord[0]|=(A_ONE<<3);/*adress methode 0 place in 3 bit*/
+						RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
 						RAMWord[2]=getDirectWord(*(words->str+words->size-1));/*get the word for # operand*/
 						numWords++;
-					}else{
-							label=labelExist(*(words->str+words->size-1));/*check if second operand is label*/
-							if(label!=NULL){
-								RAMWord[0]|=(A_TWO<<3);
-								RAMWord[2] = getLabelWord(label);
-								if(label->labelType==EX_LABEL)
-									addToExT(label->label,IC+2);
-								numWords++;
-							}else {	reg = isReg(*(words->str+words->size-1));
-								if(reg!=-1){
-									RAMWord[0]|=(A_FOUR<<3);
-									RAMWord[1] |= getRegWord(reg,3);
-								}else if(**(words->str+words->size-1)=='*'){
-										reg = isReg(*(words->str+words->size-1)+1);
-										if(reg!=-1){
-											RAMWord[0]|=(A_THREE<<3);
-											RAMWord[1] |= getRegWord(reg,3);
-										}else printf("error: wrong in put * before reg\n");
-									}else printf("error: unknown operatopr\n");
-									
+					}else{	reg = isReg(*(words->str+words->size-1));
+							if(reg!=-1){
+								RAMWord[0] |= (A_FOUR<<SOAM_SBIT);
+								if(label == NULL)/*if the first operand was register*/ 
+										RAMWord[1] = getRegWord(reg,SOR_SBIT);
+								else {
+										RAMWord[2] = getRegWord(reg,SOR_SBIT);
+										numWords++;
+									}
 							
-								}
-							}
+								}else {
+										if(**(words->str+words->size-1)=='*'){
+											reg = isReg(*(words->str+words->size-1)+1);
+											if(reg!=-1){
+												RAMWord[0]|=(A_THREE<<SOAM_SBIT);
+												RAMWord[1] |= getRegWord(reg,SOR_SBIT);
+											}else printf("error: wrong in put * before reg\n");
+										}else{ 
+												label=labelExist(*(words->str+words->size-1));/*check if second operand is label*/
+												if(label!=NULL){
+													RAMWord[0]|=(A_TWO<<SOAM_SBIT);
+													RAMWord[2] = getLabelWord(label);
+													numWords++;
+													if(label->labelType==EX_LABEL)
+														addToExT(label->label,IC+numWords);
+												}
+											}
+										}
+									}
 						
 				break;
 			
 				case '*':
 				reg = isReg(*(words->str+words->size-1)+1);
 				if(reg!=-1){
-					RAMWord[0]|=(A_THREE<<7);
-					RAMWord[1] = getRegWord(reg,6);
+					RAMWord[0]|=(A_THREE<<FOAM_SBIT);
+					RAMWord[1] = getRegWord(reg,FOR_SBIT);
 					numWords++;
 					if(getNextWordInLine(line,words)){
-						numWords++;
 						if(**(words->str+words->size-1)=='#'){
-							RAMWord[0]|=(A_ONE<<3);/*adress methode 0 place in 3 bit*/
+							RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
 							RAMWord[2]=getDirectWord(*(words->str+words->size-1));/*get the word for # operand*/
 							numWords++;
 						}else{
 								label=labelExist(*(words->str+words->size-1));/*check if secind operand is label*/
 								if(label!=NULL){
-									RAMWord[0]|=(A_TWO<<3);
+									RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 									RAMWord[2] = getLabelWord(label);
+									numWords++;
 									if(label->labelType==EX_LABEL)
-										addToExT(label->label,IC+2);
+										addToExT(label->label,IC+numWords-1);
 								}else {	reg = isReg(*(words->str+words->size-1));
 									if(reg!=-1){
-										RAMWord[0] |= (A_FOUR<<3);
-										RAMWord[1] = getRegWord(reg,3);
+										RAMWord[0] |= (A_FOUR<<SOAM_SBIT);
+										RAMWord[1] = getRegWord(reg,SOR_SBIT);
 									}else if(**(words->str+words->size-1)=='*'){
 										reg = isReg(*(words->str+words->size-1)+1);
 										if(reg!=-1){
-											RAMWord[0] |= (A_THREE<<3);
-											RAMWord[1] = getRegWord(reg,3);
+											RAMWord[0] |= (A_THREE<<SOAM_SBIT);
+											RAMWord[1] = getRegWord(reg,SOR_SBIT);
 										}else printf("error: wrong in put * before reg\n");
 									}else printf("error: unknown operatopr\n");
 								}
@@ -239,31 +245,31 @@ void handleRAMWords(lnType lineType,char *line,lineWords *words){
 				default:
 				label=labelExist(*(words->str+words->size-1));/*check if second operand is label*/
 				if(label!=NULL){
-					RAMWord[0] |= (A_TWO<<7);
+					RAMWord[0] |= (A_TWO<<FOAM_SBIT);
 					RAMWord[1] = getLabelWord(label);
-					if(label->labelType==EX_LABEL)
-							addToExT(label->label,IC+1);
 					numWords++;
+					if(label->labelType==EX_LABEL)
+							addToExT(label->label,IC+numWords-1);
 					if(getNextWordInLine(line,words)){
 						numWords++;
 						if(**(words->str+words->size-1)=='#'){
-							RAMWord[0]|=(A_ONE<<3);/*adress methode 0 place in 3 bit*/
+							RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
 							RAMWord[2]=getDirectWord(*(words->str+words->size-1));/*get the word for # operand*/
 						}else{
 							label=labelExist(*(words->str+words->size-1));/*check if secind operand is label*/
 							if(label!=NULL){
-								RAMWord[0] |= (A_TWO<<3);
+								RAMWord[0] |= (A_TWO<<SOAM_SBIT);
 								RAMWord[2] = getLabelWord(label);
 								if(label->labelType==EX_LABEL)
-									addToExT(label->label,IC+2);
+									addToExT(label->label,IC+numWords-1);
 							}else{	reg = isReg(*(words->str+words->size-1));
 									if(reg!=-1){
-										RAMWord[0] |= (A_FOUR<<3);
+										RAMWord[0] |= (A_FOUR<<SOAM_SBIT);
 										RAMWord[2] = getRegWord(reg,3);
 									}else if(**(words->str+words->size-1)=='*'){
 											reg = isReg(*(words->str+words->size-1)+1);
 											if(reg!=-1){
-												RAMWord[0] |= (A_THREE<<3);
+												RAMWord[0] |= (A_THREE<<SOAM_SBIT);
 												RAMWord[2] = getRegWord(reg,3);
 											}else printf("error: wrong in put * before reg\n");
 									}else printf("error: unknown operatopr\n");
@@ -389,7 +395,6 @@ void handleIC(lnType lineType,char *line,lineWords *words){/*handle internale co
 		if(strcmp(*(words->str+words->size-1),".data")==0){
             while(getNextWordInLine(line,words)){/*while there are stil variables*/
             		DC++;
-  					getNextWordInLine(line,words);
             }
       	}else if(strcmp(*(words->str+words->size-1),".string")==0){ 
             	if(getNextWordInLine(line,words)){
