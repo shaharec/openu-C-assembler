@@ -2,7 +2,6 @@
 
 int IC=0;/*instruction counter for memory*/
 int DC=0;/*data counter for memory*/
-int endIC=0;/*end of instruction counter after first pass*/
 
 RAM *memory=NULL;
 labelTable* labelT = NULL;
@@ -91,7 +90,7 @@ boolean addToEnT(char* label){
 		enT = (enTable*)malloc(sizeof(enTable));
 		enT->size = 1;
 		enT->line = (entryLine*) malloc(sizeof(entryLine));
-		enT->line->address = labelAd->address+endIC;
+		enT->line->address = labelAd->address;
 		strcpy(enT->line->label,label);
 	}else	{
 		enT->size++;
@@ -195,9 +194,7 @@ int getRegWord(int reg,int offset){
 int getLabelWord(labelAd* label){
 	
 	unsigned int word=0;
-	if(label->labelType ==DATA_LABEL)
-		word|=((label->address+endIC)<<3);/*label address in left 12 bits*/
-	else	word|=((label->address)<<3);/*label address in left 12 bits*/
+	word|=((label->address)<<3);/*label address in left 12 bits*/
 	if(label->labelType==EX_LABEL)
 		word|=A_ONE;/*turn on the R bit from ARE*/
 	else	word|=A_TWO;/*turn on the E bit from ARE*/
@@ -261,5 +258,17 @@ boolean isString(char* str){
 	if((*str == '\"') && (*(str +strlen(str)-1) == '\"'))/*check if tther is " un the begining of the string and at the end*/
 		return true;
 	return false;
+}
+
+void updateDataLables(int endIC){
+	int i=0;
+	printf("***endIC :%d\n",endIC);
+	if(labelT == NULL)/*check if labelT is null*/
+		return ;
+	for(i=0;i<labelT->size;i++)
+		if(((labelT->labelAd+i)->labelType)==DATA_LABEL){
+			printf("address %d\n",(labelT->labelAd+i)->address);
+			((labelT->labelAd+i)->address)+=endIC;
+			}
 }
 

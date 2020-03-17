@@ -82,6 +82,7 @@ boolean addToEnT(char* label);/*add to enternal table*/
 void printExT();/*prints the external label calls*/
 void printEnT();/*prints the external label calls*/
 boolean isString(char* str);/*returns if str is an assembler valid string*/
+void updateDataLables(int endIC);/*update the label table for data addresses*/
 void freeMemory();/*free data structers memory*/
 
 
@@ -91,5 +92,4 @@ extern labelTable* labelT;
 extern char opcode [OP_SIZE][OP_NAME_SIZE];
 extern char reg[REG_NUM][REG_NAME_LEN];
 extern RAM *memory;
-extern int endIC;
 

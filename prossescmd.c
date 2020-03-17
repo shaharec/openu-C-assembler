@@ -48,8 +48,10 @@ boolean firstPass(FILE *fp){
 		fIndex++;
 		error = !lineFirstPass(buff,fIndex);	
 	}
-	if(!error)
+	if(!error){
+		updateDataLables(IC);
 		printLbTable();/*print labels table*/
+	}
 	return !error;
 }
 boolean secondPass(FILE *fp){
@@ -59,7 +61,6 @@ boolean secondPass(FILE *fp){
 	int fIndex=0;
 	fseek(fp,0,SEEK_SET);/*return to start of the file*/
 	printf("IC=%d\n",IC);
-	endIC=IC;/*end of instructions memory from first pass*/
 	DC=IC;	/*end of instructions memory from first pass*/
 	IC=100;	/*counter for memory place init 100 place*/
 	printf("************second pass************\n");
@@ -420,8 +421,8 @@ boolean lineFirstPass(char* line, int findex){
             				handleIC(INST,line,words);
             			}else{/*not command after label*/
             				if(strcmp(*(words->str+words->size-1),".data")==0 || strcmp(*(words->str+words->size-1),".string")==0){
-            					handleIC(DATA,line,words);
             					addLb(label, DATA_LABEL);
+            					handleIC(DATA,line,words);
             				}
             			}
             				}else printf("error in syntax\n");
