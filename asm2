@@ -11,11 +11,15 @@ cmp r3, #-6
 bne END
 add r7, *r6
 clr K
+
+
+
+add L3,#6
 sub L3, L3
 .entry MAIN
 jmp LOOP
 END: stop
-STR: .string "abcd"
+STR: .string "ab "cd"
 LIST: .data 6, -9
 .data -100
 K: .data 31

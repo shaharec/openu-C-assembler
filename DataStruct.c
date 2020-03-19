@@ -108,11 +108,12 @@ boolean Islabel(char *str){
      	if (len - 1 > 30) {/*if label not within 30 chars, if yes it will print error but won't compile but will keep parsing*/
        		printf("more then 30 character for label\n");	 
       	}    
-        for(i=0;i<len-2;i++) /*in a label it should be only digits or letters, else it will print error but will keep parsing*/
+        for(i=0;i<len-2;i++) {/*in a label it should be only digits or letters, else it will print error but will keep parsing*/
             if(!isalpha(*(str + i)) || (*(str + len) <= '9' && *(str + len) >= '0' )){
                 printf("invalid label\n");
                 return false;
             }
+         }
          return true;   
     }
     return false;
@@ -167,6 +168,7 @@ labelAd* labelExist(char *label){/*check if the label exsit in table*/
 
 void printLbTable(void){
 	int i=0;
+	printf("*******lable table********\n");
 	if(labelT==NULL)
 		printf("label table is empty\n");
 	else for(i=0;i<labelT->size;i++)
@@ -219,16 +221,18 @@ void printBinary(unsigned x){
 
 void printExT(){
 	int i=0;
+	printf("*******external table********\n");
 	if(exT!=NULL)
 		for(i=0;i<exT->size;i++)
-			printf("ex label call:%s, address: %d\n",(exT->exCall+i)->label,(exT->exCall+i)->address);
+			printf("ex label :%s, address called: %d\n",(exT->exCall+i)->label,(exT->exCall+i)->address);
 }
 
 void printEnT(){
 	int i=0;
+	printf("*******entry table********\n");
 	if(enT!=NULL)
 		for(i=0;i<enT->size;i++)
-			printf("en label call:%s, address: %d\n",(enT->line+i)->label,(enT->line+i)->address);
+			printf("en label :%s, address: %d\n",(enT->line+i)->label,(enT->line+i)->address);
 }
 
 void freeMemory(){

@@ -40,9 +40,14 @@ typedef struct exTable{/*tbale of label*/
 	exCall* exCall;
 }exTable;
 
-typedef struct lineWords{/*tbale of label*/
+typedef struct lineWord{/*tbale of words in line*/
+	char *str;/*contain the string of the word*/
+	char *end;/*pointer to the end of string in the original line*/
+}lineWord;
+
+typedef struct lineWords{/*tbale of words in line*/
 	int size;
-	char** str;
+	lineWord *word;
 }lineWords;
 
 typedef struct RAMword{/*RAM word */

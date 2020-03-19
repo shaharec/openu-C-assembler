@@ -2,10 +2,12 @@
 boolean prossesAsm(const char* fileName);
 boolean firstPass(FILE *fp);
 boolean secondPass(FILE *fp);
-boolean getword(char* line,char **word, int num);
+boolean getword(lineWords *words);
 boolean lineFirstPass(char* line, int findex);
 void handleIC(lnType lineType,char *line,lineWords *words);
 void freeWords(lineWords *words);
 boolean lineSecondPass(char* line, int findex);
-void handleRAMWords(lnType lineType,char *line,lineWords *words);
+boolean handleRAMWords(lnType lineType,char *line,lineWords *words);
 boolean getNextWordInLine(char* line,lineWords *words);
+boolean DataRAMWords(char *line,lineWords *words);
+boolean	InstRAMWords(char *line,lineWords *words);
