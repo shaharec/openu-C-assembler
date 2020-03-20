@@ -1,23 +1,10 @@
 #include "prossescmd.h"
 
 
-int main(int argc, const char * argv[]){
-	
-	int i=0;
-	if(argc==1)
-		printf("no file recived\n");
-	else{
-		for(i=1;i<argc;i++){
-			prossesAsm(argv[i]);
-		}
-		freeMemory();
-	}
-	return 1;
-}
 boolean prossesAsm(const char* fileName)
 {
 	FILE *fp=NULL;
-	IC=100;	/*counter for memory place init 100 place*/
+	IC=MEMORY_START;	/*counter for memory place init 100 place*/
 	DC=0;	/*counter for label place init 0 place*/
 	fp = fopen(fileName, "r");
     	if (fp == NULL){
@@ -60,15 +47,15 @@ boolean secondPass(FILE *fp){
 	boolean error = false;
 	int fIndex=0;
 	fseek(fp,0,SEEK_SET);/*return to start of the file*/
-	printf("IC=%d\n",IC);
-	DC=IC;	/*end of instructions memory from first pass*/
-	IC=100;	/*counter for memory place init 100 place*/
+	DC=IC;			/*end of instructions memory from first pass*/
+	IC=MEMORY_START;	/*counter for memory place init 100 place*/
 	printf("************second pass************\n");
 	while (fgets(buff,LINE_LEN, fp) != NULL && !error) 
 	{
 		fIndex++;
 		error = !lineSecondPass(buff,fIndex);	
 	}
+	updateRAMCounters();
 	printExT();
 	printEnT();
 	return !error;
@@ -126,10 +113,10 @@ boolean InstRAMWords(char *line,lineWords *words){
       		switch (*((words->word+words->size-1)->str))
 			{
 				case '#':
-				RAMWord[0]|=(A_ONE<<FOAM_SBIT);/*adress methode 0 place in 7 bit*/
 				RAMWord[1]=getDirectWord((words->word+words->size-1)->str);/*get the word for # operand*/ 
 				numWords++;
 				if(getNextWordInLine(line,words)){
+					RAMWord[0]|=(A_ONE<<FOAM_SBIT);/*adress methode 0 place in 7 bit*/
 					numWords++;
 					label=labelExist((words->word+words->size-1)->str);/*check if second operand is label*/
 					if(label!=NULL){
@@ -153,14 +140,13 @@ boolean InstRAMWords(char *line,lineWords *words){
 									return false;
 									}
 						}
-				}
+				}else RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in second operand bit*/
 				break;
 				
 				case 'r':
 				numWords++;
 				reg = isReg((words->word+words->size-1)->str);
 				if(reg!=-1){
-					RAMWord[0]|=(A_FOUR<<FOAM_SBIT);
 					RAMWord[1] = getRegWord(reg,FOR_SBIT);	
 				}else {
 					label=labelExist((words->word+words->size-1)->str);/*check if secind operand is label*/
@@ -209,16 +195,21 @@ boolean InstRAMWords(char *line,lineWords *words){
 											}
 										}
 									}
+								}else{	if(reg != -1)
+										RAMWord[0]|=(A_FOUR<<FOAM_SBIT);
+									else if(label!=NULL)
+										RAMWord[0]|=(A_TWO<<SOAM_SBIT);
+									} 
 						
 				break;
 			
 				case '*':
 				reg = isReg((words->word+words->size-1)->str+1);
 				if(reg!=-1){
-					RAMWord[0]|=(A_THREE<<FOAM_SBIT);
 					RAMWord[1] = getRegWord(reg,FOR_SBIT);
 					numWords++;
 					if(getNextWordInLine(line,words)){
+						RAMWord[0]|=(A_THREE<<FOAM_SBIT);
 						if(*((words->word+words->size-1)->str)=='#'){
 							RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
 							RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the word for # operand*/
@@ -248,7 +239,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 											}
 								}
 							}
-						}
+						}else RAMWord[0]|=(A_THREE<<SOAM_SBIT);
 					}else{ 	printf("error: wrong in put * before reg\n");
 							return false;
 							}
@@ -257,12 +248,12 @@ boolean InstRAMWords(char *line,lineWords *words){
 				default:
 				label=labelExist((words->word+words->size-1)->str);/*check if second operand is label*/
 				if(label!=NULL){
-					RAMWord[0] |= (A_TWO<<FOAM_SBIT);
 					RAMWord[1] = getLabelWord(label);
 					numWords++;
 					if(label->labelType==EX_LABEL)
 							addToExT(label->label,IC+numWords-1);
 					if(getNextWordInLine(line,words)){
+						RAMWord[0] |= (A_TWO<<FOAM_SBIT);
 						numWords++;
 						if(*((words->word+words->size-1)->str)=='#'){
 							RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
@@ -291,12 +282,11 @@ boolean InstRAMWords(char *line,lineWords *words){
 											}
 							}
 						}
-					}	
+					}else RAMWord[0] |= (A_TWO<<SOAM_SBIT);	
 				}else{ 	printf("error: unknown operand\n");
 						return false;
 						}
-				
-				}		
+						
 			}
 			
 		}
@@ -402,41 +392,39 @@ boolean getNextWordInLine(char* line,lineWords *words){
 void handleIC(lnType lineType,char *line,lineWords *words){/*handle internale counter by the type of label
 (INST = 'add','move...,DATA =.string "asf",.data 120,2, EXTERN = .extern)*/	
 	if(lineType == INST){
+		IC++;/*instruction word*/
 		if(getNextWordInLine(line,words)){
+			IC++;/*extra information for first operand*/
 			switch (*((words->word+words->size-1)->str))
 				{
 					case '#':
 					if(getNextWordInLine(line,words))
-						IC+=3;
-					else IC+=2;
+						IC++;
 					break;
 					
 					case 'r':
 					if(isReg((words->word+words->size-1)->str)!=-1){
 						if(getNextWordInLine(line,words)){
-							if((isReg((words->word+words->size-1)->str)!=-1)||(((*((words->word+words->size-1)->str))=='*') && isReg((words->word+words->size-1)->str+1))){
-								IC+=2;
-							}else IC+=3;
-						}else IC+=2;
+							if(!((isReg((words->word+words->size-1)->str)!=-1)||(((*((words->word+words->size-1)->str))=='*') && isReg((words->word+words->size-1)->str+1)))){
+								IC++;;
+							}
+						}
 					}else	if(getNextWordInLine(line,words))/*is label*/
-								IC+=3;
-							else IC+=2;
+								IC++;
+						
 					break;
 					
 					case '*':
 					if(getNextWordInLine(line,words))
-						if(*((words->word+words->size-1)->str)=='*')
-							IC+=2;
-						else IC+=3;
-					else IC+=2;
+						if(!(*((words->word+words->size-1)->str)=='*'))
+							IC++;
 					break;
 					
 					default:
 					if(getNextWordInLine(line,words))
-						IC+=3;
-					else IC+=2;
+						IC++;
 				}
-			}else IC++;
+			}
 	}else if(lineType == DATA){
 		if(strcmp((words->word+words->size-1)->str,".data")==0){
             while(getNextWordInLine(line,words)){/*while there are stil variables*/

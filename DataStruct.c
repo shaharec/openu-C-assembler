@@ -270,8 +270,17 @@ void updateDataLabels(int endIC){
 		return ;
 	for(i=0;i<labelT->size;i++)
 		if(((labelT->labelAd+i)->labelType)==DATA_LABEL){
-			printf("address %d\n",(labelT->labelAd+i)->address);
 			((labelT->labelAd+i)->address)+=endIC;
 			}
 }
+
+void updateRAMCounters(){
+	
+	if(memory != NULL){
+		memory->instructionC = IC-MEMORY_START;
+		memory->dataC = DC-IC;
+		printf("instructionC: %d dataC: %d\n",memory->instructionC,memory->dataC);
+	}
+}
+
 

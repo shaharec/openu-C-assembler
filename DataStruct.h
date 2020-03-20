@@ -57,6 +57,8 @@ typedef struct RAMword{/*RAM word */
 
 typedef struct RAM{/*tbale of label*/
 	int size;
+	int instructionC;/*number of instruction words*/
+	int dataC;/*number of data words*/
 	RAMword *word;
 }RAM;
 typedef struct entryLine{/*RAM word */
@@ -71,24 +73,25 @@ typedef struct enTable{/*tbale of label*/
 
 
 /*prototypes*/
-boolean Islabel(char *str);/*check if the string is a label*/	
-boolean addLb(char* label, lbType labelType);/*add label to label table*/
-int isCmd(char *str);/*check if the string is a command*/
-labelAd* labelExist(char *label);/*check if the label already exsist in the label table*/
-boolean addToMemory(unsigned int data,int *address);/*add word to to memory*/
-void printLbTable(void);/*print labels table*/
-int isReg(char *str);/*check if str is register*/
-int getDirectWord(char *num);/*return RAM word of direct value*/
-int getLabelWord(labelAd* label);/*return RAM word of label value*/
-int getRegWord(int reg,int offset);/*return RAM word of register value with the offset*/
-void printBinary(unsigned x);/*prints binery number*/
-boolean addToExT(char* label,int address);/*add to exteral calls table*/
-boolean addToEnT(char* label);/*add to enternal table*/
-void printExT();/*prints the external label calls*/
-void printEnT();/*prints the external label calls*/
-boolean isString(char* str);/*returns if str is an assembler valid string*/
-void updateDataLabels(int endIC);/*update the label table for data addresses*/
-void freeMemory();/*free data structers memory*/
+boolean Islabel(char *str);				/*check if the string is a label*/	
+boolean addLb(char* label, lbType labelType);		/*add label to label table*/
+int isCmd(char *str);					/*check if the string is a command*/
+labelAd* labelExist(char *label);			/*check if the label already exsist in the label table*/
+boolean addToMemory(unsigned int data,int *address);	/*add word to to memory*/
+void printLbTable(void);				/*print labels table*/
+int isReg(char *str);					/*check if str is register*/
+int getDirectWord(char *num);				/*return RAM word of direct value*/
+int getLabelWord(labelAd* label);			/*return RAM word of label value*/
+int getRegWord(int reg,int offset);			/*return RAM word of register value with the offset*/
+void printBinary(unsigned x);				/*prints binery number*/
+boolean addToExT(char* label,int address);		/*add to exteral calls table*/
+boolean addToEnT(char* label);				/*add to enternal table*/
+void printExT();					/*prints the external label calls*/
+void printEnT();					/*prints the external label calls*/
+boolean isString(char* str);				/*returns if str is an assembler valid string*/
+void updateDataLabels(int endIC);			/*update the label table for data addresses*/
+void updateRAMCounters();				/*update the number of counters in the memory after the firs pass*/
+void freeMemory();					/*free data structers memory*/
 
 
 extern int IC;
@@ -97,4 +100,6 @@ extern labelTable* labelT;
 extern char opcode [OP_SIZE][OP_NAME_SIZE];
 extern char reg[REG_NUM][REG_NAME_LEN];
 extern RAM *memory;
+extern exTable* exT;
+extern enTable* enT;
 
