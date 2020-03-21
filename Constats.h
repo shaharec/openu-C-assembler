@@ -14,4 +14,8 @@
 #define OCAM_SBIT 	11	 	/*opcode start bit*/
 #define EO_ARE 		3		/*end of A,R,E bit*/
 #define MAX_WORD_INST 	3		/*define max ram words in an instruction*/
-#define MEMORY_START	100
+#define MEMORY_START	100		/*define the strat address of memory*/
+#define DATA_CMD	".data"		/*data commamd in the assembler*/
+#define STR_CMD		".string"	/*string commamd in the assembler*/
+#define EXT_CMD		".extern"	/*extern commamd in the assembler*/
+#define ENT_CMD		".entry"	/*entry commamd in the assembler*/

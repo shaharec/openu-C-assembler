@@ -74,9 +74,9 @@ boolean lineSecondPass(char* line, int findex){
             			if(isCmd((words->word+words->size-1)->str)!=-1){
             				handleRAMWords(INST,line,words);
             			}else{/*not command after label*/
-            				if(strcmp((words->word+words->size-1)->str,".data")==0 || strcmp((words->word+words->size-1)->str,".string")==0){
+            				if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0 || strcmp((words->word+words->size-1)->str,STR_CMD)==0){
            						handleRAMWords(DATA,line,words);
-            				}else	if(strcmp((words->word+words->size-1)->str,".entry")==0){
+            				}else	if(strcmp((words->word+words->size-1)->str,ENT_CMD)==0){
             							if(getNextWordInLine(line,words))
             								error = !(addToEnT((words->word+words->size-1)->str));
             					}else {	error=true;
@@ -86,12 +86,12 @@ boolean lineSecondPass(char* line, int findex){
 			}		   
 			}else if(isCmd((words->word+words->size-1)->str)!=-1){
             			handleRAMWords(INST,line,words);
-            	}else if(strcmp((words->word+words->size-1)->str,".data")==0 || strcmp((words->word+words->size-1)->str,".string")==0){/*not command after label*/
+            	}else if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0 || strcmp((words->word+words->size-1)->str,STR_CMD)==0){/*not command after label*/
            				handleRAMWords(DATA,line,words);
-            	}else if(strcmp((words->word+words->size-1)->str,".entry")==0){
+            	}else if(strcmp((words->word+words->size-1)->str,ENT_CMD)==0){
             		if(getNextWordInLine(line,words))
             			error = !(addToEnT((words->word+words->size-1)->str));
-            		}else if(strcmp((words->word+words->size-1)->str,".extern")!=0){/*not external line*/
+            		}else if(strcmp((words->word+words->size-1)->str,EXT_CMD)!=0){/*not external line*/
             			printf("line: %d unknown word: %s line",findex,(words->word+words->size-1)->str); 
             			error = true;
             		}
@@ -133,10 +133,10 @@ boolean InstRAMWords(char *line,lineWords *words){
 									if(reg!=-1){
 											RAMWord[0]|=(A_THREE<<SOAM_SBIT);
 											RAMWord[2] = getRegWord(reg,SOR_SBIT);
-									}else{ 	printf("error: wrong in put * before reg\n");
+									}else{ 	printf("error: wrong input * before reg\n");
 											return false;
 										}
-							}else {	printf("error: unknown operator\n");
+							}else {	printf("error: %s unknown operator\n",(words->word+words->size-1)->str);
 									return false;
 									}
 						}
@@ -146,11 +146,11 @@ boolean InstRAMWords(char *line,lineWords *words){
 				case 'r':
 				numWords++;
 				reg = isReg((words->word+words->size-1)->str);
-				if(reg!=-1){
+				if(reg!=-1){/*check if its a register*/
 					RAMWord[1] = getRegWord(reg,FOR_SBIT);	
 				}else {
 					label=labelExist((words->word+words->size-1)->str);/*check if secind operand is label*/
-					if(label!=NULL){
+					if(label!=NULL){/*check if its a label*/
 						RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 						RAMWord[1]=getLabelWord(label);
 						if(label->labelType==EX_LABEL)
@@ -299,18 +299,17 @@ boolean InstRAMWords(char *line,lineWords *words){
 
 boolean DataRAMWords(char *line,lineWords *words){
 	char *p=NULL;
-	if(strcmp((words->word+words->size-1)->str,".data")==0){
+	if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0){
 			while(getNextWordInLine(line,words)){/*while there are stil variables*/
 				addToMemory(atoi((words->word+words->size-1)->str),&DC);				
 				}
 			return true;	
-		}else if(strcmp((words->word+words->size-1)->str,".string")==0){ 
+		}else if(strcmp((words->word+words->size-1)->str,STR_CMD)==0){ 
 			getNextWordInLine(line,words);
             if((*((words->word+words->size-1)->str) == '\"') && (*((words->word+words->size-1)->str +strlen((words->word+words->size-1)->str)-1) == '\"')){/*check if tther is " un the begining of the string and at the end*/
             	p=(words->word+words->size-1)->str;
             	p++;/*skip " char*/
             	while(*p!=(((words->word+words->size-1)->str)[strlen((words->word+words->size-1)->str)-1])){
-            		printf("DC: %d\n",DC);
             		addToMemory((int)(*p),&DC);
             		p++;
             		}
@@ -322,6 +321,7 @@ boolean DataRAMWords(char *line,lineWords *words){
 		
 
 }
+
 boolean handleRAMWords(lnType lineType,char *line,lineWords *words){
 	
 	if(lineType==INST)
@@ -343,14 +343,14 @@ boolean getword(lineWords *words){
 	char *line=NULL;
 	int i=0;/*index*/
 	(words->word+words->size-1)->str=NULL;
-	if(words->size==1)
+	if(words->size==1)/*if were finding the first word look for the first end*/
 		line = (words->word+words->size-1)->end;
 	else line = (words->word+words->size-2)->end;
 	while(*line != '\n' && *line !='\0' && !find){/*until the end of line or find the word*/
 		if(*line != '\t' && *line !=' ' && *line != '\n' && *line !='\0' && *line !=','){/*if were in the start of a word*/
 			find=true;
 			s=line;
-			if(((words->size)==1) || (strcmp((words->word+words->size-2)->str,".string")!=0)){/*if NOT a string*/
+			if(((words->size)==1) || (strcmp((words->word+words->size-2)->str,STR_CMD)!=0)){/*if NOT a string*/
 				while(*line != '\t' && *line != ' ' && *line != '\n' && *line !='\0' && *line != ',') line++;
 			}else{	if(*line == '\"'){/*if its a string*/
 						line++;
@@ -426,11 +426,11 @@ void handleIC(lnType lineType,char *line,lineWords *words){/*handle internale co
 				}
 			}
 	}else if(lineType == DATA){
-		if(strcmp((words->word+words->size-1)->str,".data")==0){
+		if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0){
             while(getNextWordInLine(line,words)){/*while there are stil variables*/
             		DC++;
             }
-      	}else if(strcmp((words->word+words->size-1)->str,".string")==0){ 
+      	}else if(strcmp((words->word+words->size-1)->str,STR_CMD)==0){ 
             	if(getNextWordInLine(line,words)){
 		      		if(isString((words->word+words->size-1)->str))/*check if valid string*/
 		      			DC+=strlen((words->word+words->size-1)->str) - 2 + 1;/*ignor " in the start and end and add \0*/
@@ -458,7 +458,7 @@ boolean lineFirstPass(char* line, int findex){
             				addLb(label, INST_LABEL);
             				handleIC(INST,line,words);
             			}else{/*not command after label*/
-            				if((strcmp((words->word+words->size-1)->str,".data")==0) || (strcmp((words->word+words->size-1)->str,".string")==0)){
+            				if((strcmp((words->word+words->size-1)->str,DATA_CMD)==0) || (strcmp((words->word+words->size-1)->str,STR_CMD)==0)){
             					addLb(label, DATA_LABEL);
             					handleIC(DATA,line,words);
             				}
@@ -468,18 +468,18 @@ boolean lineFirstPass(char* line, int findex){
 					if(isCmd((words->word+words->size-1)->str)!=-1){/*if its a command*/
             			handleIC(INST,line,words);
             	}else{ 	
-            			if((strcmp((words->word+words->size-1)->str,".data")==0) || (strcmp((words->word+words->size-1)->str,".string") == 0)){/*not command after label*/
+            			if((strcmp((words->word+words->size-1)->str,DATA_CMD)==0) || (strcmp((words->word+words->size-1)->str,STR_CMD) == 0)){/*not command after label*/
            						handleIC(DATA,line,words);
             			}else{ 	
-            					if(strcmp(((words->word+words->size-1)->str),".extern") == 0){/*external line*/
+            					if(strcmp(((words->word+words->size-1)->str),EXT_CMD) == 0){/*external line*/
           	  						if(getNextWordInLine(line,words)){
           	  							if(labelExist((words->word+words->size-1)->str)!=NULL){/*if it's label*/	
             								printf("error label exsist\n");
             							}else {
-            								addLb((words->word+words->size-1)->str, EX_LABEL);
+            								return addLb((words->word+words->size-1)->str, EX_LABEL);
             								}
             						}
-            					}else{ if(strcmp((words->word+words->size-1)->str,".entry") != 0)
+            					}else{ if(strcmp((words->word+words->size-1)->str,ENT_CMD) != 0)
             							 printf("line: %d unknown word: %s line",findex,(words->word+words->size-1)->str);  
             						}
             			}
