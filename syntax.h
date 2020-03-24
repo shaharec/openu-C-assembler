@@ -15,7 +15,7 @@
 int count=0;
 /*Typdefs and structiers*/
 typedef enum{false,true}Boolean;
-typedef enum{faile=-1, mov, cmp, add, sub, lea, clr, not, inc, dec, jmp, bne, red, prn, jsr, rts, stop}Opcode;
+typedef enum{com_mov=0, com_cmp, com_add, com_sub, com_lea, com_clr, com_not, com_inc, com_dec, com_jmp, com_bne, com_red, com_prn, com_jsr, com_rts, com_stop, guid_data, guid_string, guid_entry, guid_extern}Opcode;
 
 /*Prototypes*/
 Boolean prossesAsm(const char* fileName);
