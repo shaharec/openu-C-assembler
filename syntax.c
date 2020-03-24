@@ -600,7 +600,7 @@ Boolean isString (char **first_char, char **last_char, int *comma_count, int row
 	
 	*first_char = *last_char;
 	Next_First_Char(first_char, comma_count);
-	    	
+	*last_char=*first_char;
 	
 	if ((**first_char) == '\"') 
 	{	
@@ -628,7 +628,7 @@ Boolean isString (char **first_char, char **last_char, int *comma_count, int row
 				flag = true;	
 		}
 		
-		
+		printf("quote_count:%d\n", quote_count);
 		if ((quote_count>=2) && (flag == true))
 			return true;
 			
