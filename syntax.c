@@ -97,9 +97,6 @@ Boolean syntax_chack (FILE *fp)
 
 	    				if((isString(&first_char , &last_char, &comma_count ,row_number )== false) && (flag == true))
 	    					flag = false;
-	    							
-	    				if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-	    					flag = false;
 	    					
 	    				break;
 	    			}
@@ -534,7 +531,6 @@ Boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
     	len=*last_char-*first_char;
     	
     	strncpy(command, *first_char, len);
-    	printf("command:%s\n", command);
     	
     	comm_checker=Command_check(command);
     	if ((comm_checker>= com_mov) && (comm_checker <= guid_extern))
@@ -546,11 +542,9 @@ Boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
     	
 	if(correct_lable==true)/*counts if there is a comma*/
     	{	
-    		if ((**last_char ==':') && (*colon_count==1))
-    			{	printf("correct_lable: %d\n", correct_lable);
+    		if ((*((*last_char)-1) ==':') && (*colon_count==1))
     			return true;
-    		}
-    		
+        		
     		else
     		{
     			printf("Row %d: Laibel is not properly define.\n", row_number);
@@ -610,16 +604,18 @@ Boolean isString (char **first_char, char **last_char, int *comma_count, int row
 		}
 		
 		
+		
 		while(**last_char != '\"')
 		{
 			(*last_char)--;
 			
-			if ((**last_char != '\"') && (**last_char != '\t') && (**last_char != ' ') && (**last_char != ';'))
+			if ((**last_char != '\"') && (**last_char != '\t') && (**last_char != ' ') && (**last_char != ';') && (**last_char != '\n') && (**last_char != '\0'))
 				flag = false;
 				
 			if(**last_char == ';')
 				flag = true;	
 		}
+		
 		
 		if ((quote_count>=2) && (flag == true))
 			return true;
