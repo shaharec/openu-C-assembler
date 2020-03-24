@@ -1,4 +1,4 @@
-#include "syntaxV1.h"
+#include "syntax.h"
 
 
 int main(int argc, const char * argv[])
