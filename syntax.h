@@ -57,8 +57,8 @@ Boolean next_num (char **first_char, char **last_char,int * comma_count, int row
 
 /*Input: Gets Pointer to the beginning and end of an argument, comma counter and line number.
 Output: Returns true if the argument sent is true number, otherwise false.
-Promotes pointer values.*/
-Boolean isNum (char **last_char, int row_number);
+Promotes pointer values untill the next comma.*/
+Boolean isNum (char **temp, int row_number);
 
 /*Input: Gets a string.
 Output: Returns true if the string describes a hamster name. False if otherwise.*/
