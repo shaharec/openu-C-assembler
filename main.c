@@ -6,13 +6,19 @@ void writeFiles(char* fileName);
 int main(int argc, char * argv[]){
 	
 	int i=0;
+	char *fileName=NULL;
+	/**char* asFile; = malloc((strlen(fileName) + strlen(".as") + 1)*sizeof(char));*/
 	if(argc==1)
 		printf("no file recived\n");
 	else{
 		for(i=1;i<argc;i++){
-			if(prossesAsm(argv[i]))
+			fileName = malloc((strlen(argv[i]) + strlen(".as") + 1)*sizeof(char));
+			strcpy(fileName, argv[i]);
+			strcat(fileName, ".as");
+			if(prossesAsm(fileName))
 				writeFiles(argv[i]);	
 			freeMemory();
+			free(fileName);
 		}
 	}
 	return 1;
@@ -26,20 +32,22 @@ void writeFiles(char* fileName){
 	char* extFileN = malloc((strlen(fileName) + strlen(".ext") + 1)*sizeof(char));
 	char* entFileN = malloc((strlen(fileName) + strlen(".ent") + 1)*sizeof(char));
 	int i = 0;
-	strcat(objFileN, fileName);
+	strcpy(objFileN, fileName);
 	strcat(objFileN, ".ob");
-	strcat(extFileN, fileName);
+	strcpy(extFileN, fileName);
 	strcat(extFileN, ".ext");
-	strcat(entFileN, fileName);
+	strcpy(entFileN, fileName);
 	strcat(entFileN, ".ent");
-	/*writing object file*/
-	fp = fopen(objFileN, "w+");
-	fprintf(fp, "%d %d", memory -> instructionC, memory -> dataC);
-	while (i < memory -> size) {
-		fprintf(fp, "\n%d %05o", (memory->word +i)->address,(int)(memory->word +i)->data);
-		i++;
+	
+	if (memory!=NULL){/*writing object file*/
+		fp = fopen(objFileN, "w+");
+		fprintf(fp, "%d %d", memory -> instructionC, memory -> dataC);
+		while (i < memory -> size) {
+			fprintf(fp, "\n%d %05o", (memory->word +i)->address,(int)(memory->word +i)->data);
+			i++;
+		}
+		fclose(fp);
 	}
-	fclose(fp);
 	
 	/*writing external labels file*/
 	if (exT!=NULL) {
@@ -59,7 +67,7 @@ void writeFiles(char* fileName){
 			fprintf(fp, "%s %d\n",(enT->line+i)->label,(enT->line+i)->address);
 	   		 i++;
 		}
-	fclose(fp);
+		fclose(fp);
 	}
 
 

@@ -26,18 +26,18 @@ typedef struct labelAd{/*store the labels and address*/
 
 
 typedef struct labelTable{/*tbale of label*/
-	int size;
-	labelAd* labelAd;
+	int size;/*size of lable table*/
+	labelAd* labelAd;/*a pointer to the lable array*/
 }labelTable;
 
 typedef struct exCall{/*external label call*/
-	int address;
-	char label[LB_NAME_SIZE];
+	int address;/*address where the external lable called*/
+	char label[LB_NAME_SIZE];/*name of the lable*/
 }exCall;
 
-typedef struct exTable{/*tbale of label*/
-	int size;
-	exCall* exCall;
+typedef struct exTable{/*tbale of external label*/
+	int size;/*size of the external lable*/
+	exCall* exCall;/*a pointer to the array of external lables call*/
 }exTable;
 
 typedef struct lineWord{/*tbale of words in line*/
@@ -46,29 +46,29 @@ typedef struct lineWord{/*tbale of words in line*/
 }lineWord;
 
 typedef struct lineWords{/*tbale of words in line*/
-	int size;
-	lineWord *word;
+	int size;/*number of words in the structer*/
+	lineWord *word;/*a pointer to the array of words*/
 }lineWords;
 
-typedef struct RAMword{/*RAM word */
-	int address;
-	unsigned int data: RAM_WORD_SIZE;
+typedef struct RAMword{/*RAM word in memory*/
+	int address;/*address of RAM word in memory*/
+	unsigned int data: RAM_WORD_SIZE;/*data of the RAM word*/
 }RAMword;
 
 typedef struct RAM{/*tbale of label*/
-	int size;
+	int size;/*number of RAM words in the memory*/
 	int instructionC;/*number of instruction words*/
 	int dataC;/*number of data words*/
 	RAMword *word;
 }RAM;
-typedef struct entryLine{/*RAM word */
-	int address;
-	char label[LB_NAME_SIZE];
+typedef struct entryLine{/*entry line in the entry lable call */
+	int address;/*address of the lable from entry address*/
+	char label[LB_NAME_SIZE];/*name of label*/
 }entryLine;
 
-typedef struct enTable{/*tbale of label*/
-	int size;
-	entryLine* line;
+typedef struct enTable{/*tbale of entry labels*/
+	int size;/*size of entry calls*/
+	entryLine* line;/*entry table line*/
 }enTable;
 
 

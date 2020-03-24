@@ -3,11 +3,11 @@
 int IC=0;/*instruction counter for memory*/
 int DC=0;/*data counter for memory*/
 
-RAM *memory=NULL;
-labelTable* labelT = NULL;
-exTable* exT=NULL;
-enTable* enT=NULL;
-char reg[REG_NUM][REG_NAME_LEN]={	
+RAM *memory=NULL;/*RAM pointer for memory*/
+labelTable* labelT = NULL;/*label tabels*/
+exTable* exT=NULL;/*external table for external file*/
+enTable* enT=NULL;/*entry table, contain entry calls*/
+char reg[REG_NUM][REG_NAME_LEN]={/*registers in the system*/	
 					"r0",
 					"r1",
 					"r2",
@@ -18,7 +18,8 @@ char reg[REG_NUM][REG_NAME_LEN]={
 					"r7"
 				};
 			
-char opcode[OP_SIZE][OP_NAME_SIZE]={	"mov",
+char opcode[OP_SIZE][OP_NAME_SIZE]={	/*commands in the assembler*/
+					"mov",
 					"cmp",
 					"add",
 					"sub",
@@ -35,9 +36,9 @@ char opcode[OP_SIZE][OP_NAME_SIZE]={	"mov",
 					"rts",
 					"stop"
 					};	
-boolean addToMemory(unsigned int data,int *address){
+boolean addToMemory(unsigned int data,int *address){/*add a word to RAM*/
 	
-	if(memory == NULL){
+	if(memory == NULL){/*check if no word was entered to memory*/
 		
 		memory = (RAM*)malloc(sizeof(RAM));
 		memory->size = 1;
@@ -45,8 +46,8 @@ boolean addToMemory(unsigned int data,int *address){
 		memory->word->address = *address;
 		memory->word->data = data;
 	}else	if(memory->size==RAM_MAX_SIZE){
-		printf("not enogth ram memory: over %d RAM words",RAM_MAX_SIZE);
-		return false;
+			printf("not enogth ram memory: over %d RAM words",RAM_MAX_SIZE);
+			return false;
 	}else	{
 		memory->size++;
 		memory->word = realloc(memory->word,(memory->size)*sizeof(RAMword));
@@ -60,7 +61,7 @@ boolean addToMemory(unsigned int data,int *address){
 	return true;
 }
 
-boolean addToExT(char* label,int address){
+boolean addToExT(char* label,int address){/*add a label ti the extrnal calls table*/
 		
 	if(exT == NULL){
 		
