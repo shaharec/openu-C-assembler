@@ -70,6 +70,7 @@ Boolean syntax_chack (FILE *fp)
 	    		last_char=first_char;
 	    		Next_last_Char(&last_char);
 	    		
+	    		strncpy(command,zero_command,MAX_COMMAND);
 	    		len=last_char-first_char;
     			strncpy(command, first_char, len);
 	    			
@@ -79,7 +80,7 @@ Boolean syntax_chack (FILE *fp)
 	    	 
 			
 	    	comm_checker=Command_check(command); /*check if the first word is legal*/
-	    	printf("command:%sX\n comm_checker:%d\n",command, comm_checker);
+	    	printf("command: %sX\n", command);
 	    	/*Check if the method has a source operand.*/
 	    	switch (comm_checker)
 	    	{
@@ -111,13 +112,25 @@ Boolean syntax_chack (FILE *fp)
 	    				printf("Row %d: WORNING! '.entry' cannot be labled.\n", row_number);
 	    						
 	    			first_char = last_char;
-	    						Next_First_Char(&first_char,&comma_count);	
-	    						
+	    			Next_First_Char(&first_char,&comma_count);	
+	    					
 	    			if(comma_count>0) /*if there was a comma in the first word or prior prints error*/
 	    			{
 	    				printf("Row %d: Illegal comma.\n", row_number);
 	    				flag = false;
+	    				
+	    				first_char++;
+	    				Next_First_Char(&first_char,&comma_count);
 	    			}
+	    			
+	    			if (*first_char == ';')
+	    			{
+	    				printf("Row %d: Invalid command line.\n", row_number);
+	    				flag = false;
+	    						
+	    				break;
+	    			}
+	    		
 	    						
 	    			if((islable (&first_char, &last_char, row_number)==false) && (flag == true))
 	    				flag = false;
@@ -140,8 +153,19 @@ Boolean syntax_chack (FILE *fp)
 	    			{
 	    				printf("Row %d: Illegal comma.\n", row_number);
 	    				flag = false;
+	    				
+	    				first_char++;
+	    				Next_First_Char(&first_char,&comma_count);
 	    			}
+	    				
+	    			if (*first_char == ';')
+	    			{
+	    				printf("Row %d: Invalid command line.\n", row_number);
+	    				flag = false;
 	    						
+	    				break;
+	    			}
+	    					
 	    			if((islable (&first_char, &last_char, row_number)==false) && (flag == true))
 	    				flag = false;
 	    							
@@ -158,9 +182,9 @@ Boolean syntax_chack (FILE *fp)
 	    		case com_add: 
 	    		case com_sub:
 	    		{
-
 	     			if ((addres_chack(&first_char, &last_char, 4, FIRST, &comma_count, row_number)== false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;
+					
 					
 	    			if ((addres_chack(&first_char, &last_char, 3, SECOND, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;
@@ -177,14 +201,10 @@ Boolean syntax_chack (FILE *fp)
 	    			
 	    			if ((addres_chack(&first_char, &last_char, 4, FIRST, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;    	
-	    						
+	    			printf("function first char:%s \nfunction last char:%s \n", first_char, last_char);			
 	    			if ((addres_chack(&first_char, &last_char, 4, SECOND, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;
-	    				
-	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-	    				flag = false;
-	    					
-	    					
+	
 	    			break;
 	    		}
 	    			
@@ -286,7 +306,7 @@ void Next_First_Char(char **first_char, int *comma_count)
 	if(**first_char==',')/*counts if there is a comma*/
     			(*comma_count)++;
     			
-	while(((**first_char=='\t') || (**first_char==' ')) && (**first_char!='\n') && ((**first_char!='\0')))
+	while(((**first_char=='\t') || (**first_char==' ')) && (**first_char!=';') && (**first_char!='\n') && ((**first_char!='\0')))
     	{
         	(*first_char)++;
         	if(**first_char==',')/*counts if there is a comma*/
@@ -334,7 +354,7 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
 	if (op_num == SECOND)
 		op_position=SECOND;
 	 	  
-	if ((**first_char == '\n') || (**first_char == '\0'))
+	if ((**first_char == ';') ||(**first_char == '\n') || (**first_char == '\0'))
    	{
   		printf("Row %d: Missing argument.\n", row_number);
     		return false;
@@ -370,7 +390,7 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
     			Next_last_Char(last_char);
     			 
 	 
-    			if ((**first_char == '\n') || (**first_char == '\0'))
+    			if ((**first_char == ';') ||(**first_char == '\n') || (**first_char == '\0'))
    			{
   				printf("Row %d; Argument %d: Missing argument.\n", row_number, op_position+1);
     				return false;
@@ -384,10 +404,9 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
 	    	/*0*/ if ((**first_char=='#') && (check_num == 4)) /*Check if this is an immediate address.*/ 
 	    	{
 			(*first_char)++; 
-			*last_char=*first_char;	
+			*last_char=*first_char;			
 					
-					
-			if (**first_char == '-')/*Check if the number is negative*/			(*last_char)++;		
+			if (**last_char == '-')/*Check if the number is negative*/			(*last_char)++;		
 			
 			while ((**last_char>='0')&&(**last_char <= '9')) /*Passing over the number to the end*/
  			{
@@ -395,14 +414,13 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
        				flag = true;
     			}	
     			
-    			while(**last_char!='\t' && **last_char!=' ' && **last_char!='\0' && **last_char!=',')
+    			while(**last_char!=';' && **last_char!='\n' && **last_char!='\0' && **last_char!=',')
     			{
-    				if (((**last_char<'0')||(**last_char > '9')) && (**last_char != '\n')&& (**last_char != '\0'))
+    				if (((**last_char<'0')||(**last_char > '9')) && **last_char!='\t' && **last_char!=' ')
     					flag = false;
     				
     				(*last_char)++;
     			}
-    			
     			
     			if (flag == false) /* chack if the Immediate address is properly defined*/
     			{
@@ -494,7 +512,7 @@ Boolean to_many_arg(char **last_char, int row_number)
  	while((**temp)=='\t' || (**temp)==' ')					
    		(*temp)++;
    			
-	if((**temp)=='\n' || (**temp)=='\0')
+	if((**temp)==';' ||(**temp)=='\n' || (**temp)=='\0')
       		return true;
       	
       	else if ((**temp)==',')
@@ -522,13 +540,9 @@ Boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 		
 	temp = *last_char;
 	
-	while((*temp=='\t' || *temp==' ') && *temp!=':' && *temp!='\n' && *temp!='\0')
-    	{
-   		if(*temp==':') /*counts if there is a comma*/
-    			(*colon_count)++;
-    			
+	while((*temp=='\t' || *temp==' ') && *temp!=':' && *temp!=';' && *temp!='\n' && *temp!='\0')
     		temp++;
-    	}
+    	
     		
     	if(*temp==':') /*counts if there is a comma*/
     	{
@@ -577,7 +591,7 @@ Boolean islable (char **first_char,char **last_char, int row_number)
 	if (**last_char == '.')
 		return false;
 		
-	while ((((**last_char)>='0' && (**last_char)<='9') || ((**last_char)>='A' && (**last_char)<='Z') || ((**last_char)>='a' && (**last_char)<='z')) && (**last_char!='\n') && (**last_char!='\0')) /*Enter the loop only if the word consists of letters or numbers*/
+	while ((((**last_char)>='0' && (**last_char)<='9') || ((**last_char)>='A' && (**last_char)<='Z') || ((**last_char)>='a' && (**last_char)<='z')) && (**last_char!=';') && (**last_char!='\n') && (**last_char!='\0')) /*Enter the loop only if the word consists of letters or numbers*/
 	{	
 		(*last_char)++;
 		
@@ -621,14 +635,13 @@ Boolean isString (char **first_char, char **last_char, int *comma_count, int row
 		{
 			(*last_char)--;
 			
-			if ((**last_char != '\"') && (**last_char != '\t') && (**last_char != ' ') && (**last_char != ';') && (**last_char != '\n') && (**last_char != '\0'))
+			if ((**last_char != '\"') && (**last_char != '\t') && (**last_char != ' ') && (**last_char != '\n') && (**last_char != '\0'))
 				flag = false;
 				
 			if(**last_char == ';')
 				flag = true;	
 		}
 		
-		printf("quote_count:%d\n", quote_count);
 		if ((quote_count>=2) && (flag == true))
 			return true;
 			
@@ -660,8 +673,15 @@ Boolean next_num (char **first_char, char **last_char,int * comma_count, int row
 	Next_First_Char(first_char,comma_count); /*Skip white characters*/
 	*last_char=*first_char;
 	
-	while((**last_char != ';') && (**last_char != '\n') && (**last_char != '\0')&& (**last_char != ';')) 
+	if (**last_char == ';')
 	{
+		printf("Row %d: Number missing.\n", row_number);
+    		return false;
+	}
+	
+	while((**last_char != ';') && (**last_char != '\n') && (**last_char != '\0')&& (**last_char != ';')) 
+	{	
+		
 		num_flag = isNum (last_char, row_number);
 		
 		if (num_flag == true)
@@ -674,8 +694,10 @@ Boolean next_num (char **first_char, char **last_char,int * comma_count, int row
 		}
 		
 		if (**last_char == ',')
+		{
 			(*comma_count)++;
-		(*last_char)++;	
+			(*last_char)++;	
+		}
 		
 		*first_char=*last_char;
 	}
@@ -715,8 +737,8 @@ Boolean isNum (char **temp, int row_number)
 	Boolean flag = false;		
 	
 	while((**temp == ' ') || (**temp == '\t')) (*temp)++;
-	if ((**temp == '+')||(**temp== '-'))
-		(*temp)++;	
+		if ((**temp == '+')||(**temp== '-'))
+			(*temp)++;	
 	
 	
 	while((**temp>='0')&&(**temp <= '9'))
@@ -726,14 +748,13 @@ Boolean isNum (char **temp, int row_number)
 	}
 	
 	
-	while((flag == true) && (((**temp != ',') && (**temp != '\n')) && (**temp != '\0') ))
+	while((flag == true) && (**temp != ',') && (**temp != ';') && (**temp != '\n') && (**temp != '\0'))
 	{
-		
 		if ((**temp != ' ') && (**temp != '\t'))
 			flag = false;
 		(*temp)++;
 	}
-	while((**temp != ',') && (**temp != '\n')&& (**temp != '\0') && (**temp != ';')) (*temp)++;
+	while((**temp != ',') && (**temp != '\n') && (**temp != '\0') && (**temp != ';')) (*temp)++;
 	
 	
 	
