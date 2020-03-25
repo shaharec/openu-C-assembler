@@ -36,93 +36,103 @@ Boolean prossesAsm(const char* fileName)
 
 /*Function*/
 /*Input: Receives a reading line
-Output: If correct returns 1 if incorrect returns 0*/
+Output: Return true if the file is correct and return false and print the error essence if the input is incorrect.*/
 Boolean syntax_chack (FILE *fp)
-{
+{	
 	char buff[MAX_LINE];
 	char *first_char=NULL, *last_char=NULL;
 	char command [MAX_COMMAND] = {0}, zero_command[MAX_COMMAND] = {0}; 
 	Opcode comm_checker;
 	int row_number=0, comma_count=0, colon_count=0, len=0;
 	Boolean flag = true, labled = false;
-
-	while (fgets(buff,MAX_LINE, fp) != NULL)  /*A loop that goes through a file to the end.*/
+	
+	/* A loop that receives from a text file and runs to the end of the file. */ 
+	while (fgets(buff,MAX_LINE, fp) != NULL)
 	{
+		/*Reset variables.*/
 		row_number++;
 		printf("%d.%s", row_number, buff);
 		comma_count=0, colon_count=0, labled = false;
 		count =0;
 		strncpy(command,zero_command,MAX_COMMAND);
 		
-		/*4 rows to scans the first word*/
+		/*Find the first character in the next word.*/
 		first_char=buff;
 		Next_First_Char(&first_char,&comma_count);
 		
-		if (*first_char=='\n'|| *first_char=='\0' || *first_char==';') /*Case of blank line.*/
+		/*A case of a line of white characters or a line that begins with a semicolon.*/
+		if (*first_char=='\n'|| *first_char=='\0' || *first_char==';') 
 			continue;
 
+		/*Check if a label is set, if so the instruction word is recorded to the "Command" argument . If you do not receive the instruction, the argument is "Command"*/
 	    	if (def_lable (&first_char,&last_char,command, &comma_count, &colon_count,row_number) ==true)
 	    	{
-	    		labled = true;
-	    		/*find the next word.*/
+	    		labled = true; /*There is a label*/
+	    		
+	    		/*Find the next word.*/
 	    		first_char = last_char;
 	    		Next_First_Char(&first_char,&comma_count); 	
 	    		last_char=first_char;
 	    		Next_last_Char(&last_char);
 	    		
-	    		strncpy(command,zero_command,MAX_COMMAND);
+	    		strncpy(command,zero_command,MAX_COMMAND); /*Resetting the "command" argument array*/
+	    		
+	    		/*Placing a string in the "command" array.*/
 	    		len=last_char-first_char;
     			strncpy(command, first_char, len);
 	    			
 	    	}
 	    	
-	    	
-	    	 
-			
+	    	/*Saving a number representing a command. Performed using the function "Command_check"*/	
 	    	comm_checker=Command_check(command); /*check if the first word is legal*/
-	    	printf("command: %sX\n", command);
-	    	/*Check if the method has a source operand.*/
+	    	
+	    	/*"Switch" command to determine how to handle the command.*/
 	    	switch (comm_checker)
 	    	{
-	    		case guid_data:
+	    		case guid_data: /*.data command*/
 	    		{
-	    						
+	    			/*Check if the parameters are set correctly for the directive sentence.*/			
    				if ((next_num (&first_char, &last_char,&comma_count, row_number)== false) && (flag == true))
 	    				flag = false;
 	    			
+	    			/*Check if there are additional arguments in the line and update the flag.*/
 	    			/*if ((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;*/
 	    						
 	    			break;
 	    		}
 	    			
-	    		case guid_string:
+	    		case guid_string:/*.string command*/
 	    		{
-	    			first_char = last_char;
-
+				/*Check if the string is set correctly for the directive sentence.*/
 	    			if((isString(&first_char , &last_char, &comma_count ,row_number )== false) && (flag == true))
 	    				flag = false;
 	    					
 	    			break;
 	    		}
 	    			
-	    		case guid_entry:
-	    		{
+	    		case guid_entry: /*.entry command*/
+	    		{	
+	    			/*Check if a label is set for the directive sentence.*/
 	    			if (labled == true)
 	    				printf("Row %d: WORNING! '.entry' cannot be labled.\n", row_number);
-	    						
+	    			
+	    			/*Find the first character in the next word.*/			
 	    			first_char = last_char;
 	    			Next_First_Char(&first_char,&comma_count);	
-	    					
-	    			if(comma_count>0) /*if there was a comma in the first word or prior prints error*/
+	    			
+	    			/*If there was a comma in the first word and prints error if so and update the flag.*/		
+	    			if(comma_count>0)
 	    			{
 	    				printf("Row %d: Illegal comma.\n", row_number);
 	    				flag = false;
 	    				
+	    				/*Find the first character in the next word.*/
 	    				first_char++;
 	    				Next_First_Char(&first_char,&comma_count);
 	    			}
 	    			
+	    			/*Check if a semicolon is set before checking the operators then an error message will print and move to the next iteration of the main loop.*/
 	    			if (*first_char == ';')
 	    			{
 	    				printf("Row %d: Invalid command line.\n", row_number);
@@ -131,10 +141,11 @@ Boolean syntax_chack (FILE *fp)
 	    				break;
 	    			}
 	    		
-	    						
+	    			/*Check if the argument is a valid label and update the flag.*/			
 	    			if((islable (&first_char, &last_char, row_number)==false) && (flag == true))
 	    				flag = false;
-	    							
+	    			
+	    			/*Check if there are additional arguments in the line and update the flag.*/				
 	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;
 	    						
@@ -142,14 +153,18 @@ Boolean syntax_chack (FILE *fp)
 	    					
 	       		}
 	    			
-	    		case guid_extern:
+	    		case guid_extern: /*.extern command*/
 	    		{
+	    			/*Check if a label is set for the directive sentence.*/
 	    			if (labled == true)
 	 				printf("Row %d: WORNING! '.extern' cannot be labled.\n", row_number);		
+	    			
+	    			/*Find the first character in the next word.*/
 	    			first_char = last_char;
-	    						Next_First_Char(&first_char,&comma_count);	
-	    						
-	    			if(comma_count>0) /*if there was a comma in the first word or prior prints error*/
+	    			Next_First_Char(&first_char,&comma_count);	
+	    			
+	    			/*If there was a comma in the first word and prints error if so and update the flag.*/			
+	    			if(comma_count>0)
 	    			{
 	    				printf("Row %d: Illegal comma.\n", row_number);
 	    				flag = false;
@@ -157,7 +172,8 @@ Boolean syntax_chack (FILE *fp)
 	    				first_char++;
 	    				Next_First_Char(&first_char,&comma_count);
 	    			}
-	    				
+	    			
+	    			/*Check if a semicolon is set before checking the operators then an error message will print and move to the next iteration of the main loop.*/	
 	    			if (*first_char == ';')
 	    			{
 	    				printf("Row %d: Invalid command line.\n", row_number);
@@ -165,10 +181,12 @@ Boolean syntax_chack (FILE *fp)
 	    						
 	    				break;
 	    			}
-	    					
+	    			
+	    			/*Check if the argument is a valid label and update the flag.*/		
 	    			if((islable (&first_char, &last_char, row_number)==false) && (flag == true))
 	    				flag = false;
-	    							
+	    			
+	    			/*Check if there are additional arguments in the line and update the flag.*/				
 	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;
 	    						
@@ -176,19 +194,20 @@ Boolean syntax_chack (FILE *fp)
 	    					
 	       		}
 	    			
-	    			
 	    		/*4 source operand, 3 Target operand.*/
-	    		case com_mov:
-	    		case com_add: 
-	    		case com_sub:
+	    		case com_mov: /*mov command*/
+	    		case com_add: /*add command*/
+	    		case com_sub: /*sub command*/
 	    		{
+	    			/*Checking the first argument and updating the flag.*/
 	     			if ((addres_chack(&first_char, &last_char, 4, FIRST, &comma_count, row_number)== false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;
 					
-					
+				/*Checking the second argument and updating the flag.*/		
 	    			if ((addres_chack(&first_char, &last_char, 3, SECOND, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;
-
+				
+				/*Check if there are additional arguments in the line and update the flag.*/
 	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;
 	    				
@@ -196,12 +215,13 @@ Boolean syntax_chack (FILE *fp)
 	    		} 
 	    			
 	    		/*4 source operand, 4 Target operand.*/
-	    		case com_cmp:
+	    		case com_cmp:/*cmp command*/
 	    		{
-	    			
+	    			/*Checking the first argument and updating the flag.*/
 	    			if ((addres_chack(&first_char, &last_char, 4, FIRST, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;    	
-	    			printf("function first char:%s \nfunction last char:%s \n", first_char, last_char);			
+	    			
+	    			/*Checking the second argument and updating the flag.*/				
 	    			if ((addres_chack(&first_char, &last_char, 4, SECOND, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;
 	
@@ -211,12 +231,15 @@ Boolean syntax_chack (FILE *fp)
 	    		/*1 source operand, 3 Target operand.*/
 	    		case com_lea:
 	    		{
+	    			/*Checking the first argument and updating the flag.*/
 	    			if ((addres_chack(&first_char, &last_char, 1, FIRST, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;
 	    				
+	    			/*Checking the second argument and updating the flag.*/	
 	    			if ((addres_chack(&first_char, &last_char, 3, SECOND, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
 	    				flag = false;
-	    				
+	    			
+	    			/*Check if there are additional arguments in the line and update the flag.*/	
 	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;
 	    					
@@ -224,13 +247,14 @@ Boolean syntax_chack (FILE *fp)
 	    		}
 	    			
 	    		/*No source operand, 2 Target operand.*/
-	    		case com_jmp:
-	    		case com_bne:
+	    		case com_jmp:/*jmp command*/
+	    		case com_bne:/*ben command*/
 	    		{
-	    			/*Check if the flag needs to be updated.*/
+	    			/*Test the only argument and update the flag.*/
 				if ((addres_chack(&first_char, &last_char, 2, ONLY,&comma_count, row_number) == false) && (flag == true)) 
 	    				flag = false;
-	    				
+	    			
+	    			/*Check if there are additional arguments in the line and update the flag.*/	
 	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;
 	    					
@@ -238,31 +262,31 @@ Boolean syntax_chack (FILE *fp)
 	    		}
 	    			
 	    		/*No source operand, 3 Target operand.*/
-	    		case com_clr:
-	    		case com_not:
-	    		case com_inc:
-	    		case com_dec:
-	    		case com_red:
-	    		case com_jsr:	
+	    		case com_clr:/*clr command*/
+	    		case com_not:/*not command*/
+	    		case com_inc:/*inc command*/
+	    		case com_dec:/*dec command*/
+	    		case com_red:/*red command*/
+	    		case com_jsr:/*jsr command*/
 	    		{
-	    			/*Check if the flag needs to be updated.*/
+	    			/*Test the only argument and update the flag.*/
 				if ((addres_chack(&first_char, &last_char, 3, ONLY, &comma_count, row_number) == false) && (flag == true)) 
 	    				flag = false;
 	    			
+	    			/*Check if there are additional arguments in the line and update the flag.*/
 	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;
 	    			break;
 	    		}
 	    			
-	    			
-	    			
 	    		/*No source operand, 4 Target operand.*/
-	    		case com_prn:
+	    		case com_prn:/*prn command*/
 	    		{
-	    			/*Check if the flag needs to be updated.*/
+	    			/*Test the only argument and update the flag.*/
 				if ((addres_chack(&first_char, &last_char, 4, ONLY, &comma_count, row_number) == false) && (flag == true)) 
 	    				flag = false;
-	    					
+	    			
+	    			/*Check if there are additional arguments in the line and update the flag.*/	
 	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;
 	    				
@@ -270,16 +294,17 @@ Boolean syntax_chack (FILE *fp)
 	    		}
 	    			
 	    		/*No source operand, no target operand.*/
-	    		case com_rts:
-	    		case com_stop:
+	    		case com_rts:/*rts command*/
+	    		case com_stop:/*stop command*/
 	    		{
-	    		
+	    			/*Check if there are additional arguments in the line and update the flag.*/
 	    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
 	    				flag = false;
 	    					
 	    			break;
 	    		}
 	    		
+	    		/*If command is no specified*/
 	    		default:
 	    		{
 	    			printf("Row %d: Invalid command line.\n", row_number);
@@ -302,13 +327,16 @@ Boolean syntax_chack (FILE *fp)
 /*Input: Pointer for beginning word and comma count.
 Output: will advance the pointer to the beginning of the word, return true if there is ';' In the section, will return false if not. If a comma encounter , it will update the comma counter*/
 void Next_First_Char(char **first_char, int *comma_count)
-{
-	if(**first_char==',')/*counts if there is a comma*/
-    			(*comma_count)++;
-    			
+{	
+	/*Counts if there is a comma*/
+	if(**first_char==',')
+    		(*comma_count)++;
+    	
+    	/*Loop runs on white characters and stops if you meet non-white or end-of-line character.*/		
 	while(((**first_char=='\t') || (**first_char==' ')) && (**first_char!=';') && (**first_char!='\n') && ((**first_char!='\0')))
     	{
         	(*first_char)++;
+        	
         	if(**first_char==',')/*counts if there is a comma*/
     			(*comma_count)++;	
     	}
@@ -318,16 +346,17 @@ void Next_First_Char(char **first_char, int *comma_count)
 Output: Will advance the pointer to the end of the word, stop if it has a white space, ';' Or ','*/
 void Next_last_Char(char ** last_char)
 {
+	/*If the first character is a comma, the pointer will move forward.*/
 	if (**last_char==',')
 		(*last_char)++;
-		
+	
+	/*Loop runs on white characters and stops if you meet non-white or end-of-line character.*/	
 	while(**last_char!='\t' && **last_char!=' ' && **last_char!='\0' && **last_char!=',' && **last_char!=';')
     		(*last_char)++;
     		
-    	
-    	if(**last_char=='\0') /* included to get the word that was inputed last properly*/
-    		(*last_char)--;
-    
+    	/* included to get the word that was inputed last properly*/
+    	if(**last_char=='\0') 
+    		(*last_char)--;  
 }
 
 
@@ -339,57 +368,60 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
 	char *operator = NULL;
 	Boolean flag = false;
 	
-	/*4 lines to go to the first letter of the next word */
+	/*Promotions indicate the beginning of the first character of the word and the last letter of the word. */
 	*first_char=*last_char;		
     	Next_First_Char(first_char, comma_count);
     	*last_char=*first_char;
     	Next_last_Char(last_char);
-	 
 	
-	
-	 
+	/*Check if the argument is the first or only operator.*/ 
 	if ((op_num == ONLY) ||(op_num == FIRST))
 		op_position=FIRST;
-	 	  
+	/*Check if the argument is the second operator.*/	  
 	if (op_num == SECOND)
 		op_position=SECOND;
-	 	  
+	 
+	 /*Check if we have reached the end of the line or a semicolon.*/	  
 	if ((**first_char == ';') ||(**first_char == '\n') || (**first_char == '\0'))
    	{
   		printf("Row %d: Missing argument.\n", row_number);
     		return false;
     	}
-	  				
+	  
+	/*If a comma is missing, an error message is printed and a false is returned.*/				
     	if(*comma_count<op_position) /*check if there is comma and stops if there is*/ 
 		{
    			printf("Row %d: Missing comma.\n", row_number);
     			return false;  		
 		}
 	
-	else if(*comma_count>op_position) /*check if there is comma and stops if there is*/ 
+	/*Check for excess comma error message and return false.*/
+	else if(*comma_count>op_position) 
 	{
-		if (op_num==FIRST)
+		if (op_num==FIRST)/*Check if the argument is the first or only operator.*/
 			printf("Row %d: Missing argument.\n", row_number);
-		else
+		
+		else /*Check if the argument is the second operator and return false.*/
   			printf("Row %d: Illegal comma.\n", row_number);
     		return false;  		
 	}
 		
 	
-	else
-	{			
+	else /*If there is a comma exactly as defined, we will check the operators.*/
+	{	
+		/*If this is the second argument.*/		
 		if (op_position == SECOND)
 		{
-			
+			/*If the first character is a comma, the pointer will move forward.*/
 			if (**first_char==',')
 				(*first_char)++;
 			
-						
+			/*Promotions indicate the beginning of the first character of the word and the last letter of the word. */			
     			Next_First_Char(first_char, comma_count);
     			*last_char=*first_char;	
     			Next_last_Char(last_char);
     			 
-	 
+	 		/*Checking whether we have reached the end of the line or a semicolon and an error message is returned.*/
     			if ((**first_char == ';') ||(**first_char == '\n') || (**first_char == '\0'))
    			{
   				printf("Row %d; Argument %d: Missing argument.\n", row_number, op_position+1);
@@ -406,36 +438,42 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
 			(*first_char)++; 
 			*last_char=*first_char;			
 					
-			if (**last_char == '-')/*Check if the number is negative*/			(*last_char)++;		
+			if (**last_char == '-')/*Check if the number is negative*/		
+				(*last_char)++;		
 			
-			while ((**last_char>='0')&&(**last_char <= '9')) /*Passing over the number to the end*/
+			/*Passing the pointer over the number to the end*/
+			while ((**last_char>='0')&&(**last_char <= '9')) 
  			{
     				(*last_char)++;
        				flag = true;
     			}	
     			
+    			/*Checking whether we have reached the end of the line or a semicolon and an error message is returned.*/
     			while(**last_char!=';' && **last_char!='\n' && **last_char!='\0' && **last_char!=',')
     			{
+    				/*If it is not a white character or number we will update the flag.*/
     				if (((**last_char<'0')||(**last_char > '9')) && **last_char!='\t' && **last_char!=' ')
     					flag = false;
     				
     				(*last_char)++;
     			}
     			
-    			if (flag == false) /* chack if the Immediate address is properly defined*/
+    			/*Chack if the Immediate address is properly defined*/
+    			if (flag == false) 
     			{
     				printf("Row %d; Argument %d: Immediate address is not properly defined.\n", row_number, op_position+1);
-    				Next_last_Char(last_char);
+    				Next_last_Char(last_char);/*Promote the last character to the next white character or comma or semicolon or sentence end.*/
     				
     				return false;
     			}
     	
-    			else
+    			/*If the operator is set correctly, the truth will be returned.*/
+    			else 
 				return true;
 		}
 			    	
-			
-		/*2*/ else if ((**first_char=='*')&&((check_num=2)||(check_num=3)||(check_num=4))) /*Check if this is an indirect register addressing.*/
+		/*Check if this is an indirect register addressing.*/	
+		else if ((**first_char=='*')&&((check_num=2)||(check_num=3)||(check_num=4))) 
 		{
 	    		(*first_char)++; 
 	    		len=*last_char-*first_char;
@@ -483,8 +521,9 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
 			free(operator);
 			return false;
 		}
-			
-		/*1*/ if (islable (first_char, last_char, row_number)== true)/* Check if this is a direct addressing*/
+		
+		/*(Direct addressing method) Checking whether the argument is a valid label and updating the flag.*/
+		if (islable (first_char, last_char, row_number)== true)/* Check if this is a direct addressing*/
 			{
 				
 				free(operator);
@@ -533,6 +572,7 @@ Boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 	Boolean correct_lable = false;
 	char *temp=NULL;
 	
+	/*Check if the argument is a valid label and update the flag.*/
 	correct_lable = islable (first_char, last_char, row_number);
 	
 	if (correct_lable == false)
