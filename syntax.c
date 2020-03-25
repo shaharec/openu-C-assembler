@@ -84,7 +84,7 @@ Boolean syntax_chack (FILE *fp)
 	    	}
 	    	
 	    	/*Saving a number representing a command. Performed using the function "Command_check"*/	
-	    	comm_checker=Command_check(command); /*check if the first word is legal*/
+	    	comm_checker=Command_check(command);
 	    	
 	    	/*"Switch" command to determine how to handle the command.*/
 	    	switch (comm_checker)
@@ -430,10 +430,8 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
     			
     		}
     		
-    		
-    		
-    						    	
-	    	/*0*/ if ((**first_char=='#') && (check_num == 4)) /*Check if this is an immediate address.*/ 
+    		/*Check if this is an immediate address.*/				    	
+	    	if ((**first_char=='#') && (check_num == 4))  
 	    	{
 			(*first_char)++; 
 			*last_char=*first_char;			
@@ -474,17 +472,24 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
 			    	
 		/*Check if this is an indirect register addressing.*/	
 		else if ((**first_char=='*')&&((check_num=2)||(check_num=3)||(check_num=4))) 
-		{
+		{	
 	    		(*first_char)++; 
+	    		
+	    		/*Finding the word length and allocate a dynamic memory for a variable.*/
 	    		len=*last_char-*first_char;
 	    		operator = (char *)malloc((sizeof(char))*len);
+	    		
+	    		/*Check if the allocation was done correctly.*/
 	    		if (operator == NULL)
 	    		{
 	    			printf("Allocation error.\n");
 	    			exit(1);
 	    		}
+	    		
+	    		/*Saving a value in a dynamic memory variable.*/
 			strncpy(operator, *first_char, len);
-			    		
+			  
+			/*Check if the value is Register if no appropriate error message is printed and false returned.*/  		
 			if (isResinger(operator) == false) 
 			{
 			    	printf("Row %d; Argument %d: Indirect register addressing is not properly defined.\n", row_number, op_position+1);
@@ -496,26 +501,33 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
 			   	return true;
 		}
 			    	
- 	
+ 		/*Finding the word length and allocate a dynamic memory for a variable.*/
 		len=*last_char-*first_char;
 		operator = (char *)malloc((sizeof(char))*len);
+	    	
+	    	/*Check if the allocation was done correctly.*/
 	    	if (operator == NULL)
 		{
 			printf("Allocation error.\n");
     			exit(1);
 	    	}
 		
+		/*Saving a value in a dynamic memory variable.*/
 		strncpy(operator, *first_char, len);
 		
 		
-		
-		/*3*/ if ((isResinger(operator) == true)&&((check_num=3)||(check_num=4)))/*Check if this is a direct register addressing.*/
+		/*Check if this is a direct register addressing.*/
+		if ((isResinger(operator) == true)&&((check_num=3)||(check_num=4)))
 			{
 				free(operator);	
 				return true;
 			}
+		
+		/*Saving a number representing a operator. Performed using the function "Command_check"*/
 		comm_checker=Command_check(operator);	
-		if ((comm_checker>= guid_data ) && (comm_checker <= guid_extern)) /*Check if the second word is a reserved word*/
+		
+		/*Check if the second word is a reserved word*/
+		if ((comm_checker>= guid_data ) && (comm_checker <= guid_extern)) 
 		{
 			printf("Row %d; Argument %d: The operator is a reserved word.\n", row_number, op_position+1);
 			free(operator);
@@ -523,7 +535,7 @@ Boolean addres_chack(char **first_char, char **last_char,int check_num ,int op_n
 		}
 		
 		/*(Direct addressing method) Checking whether the argument is a valid label and updating the flag.*/
-		if (islable (first_char, last_char, row_number)== true)/* Check if this is a direct addressing*/
+		if (islable (first_char, last_char, row_number)== true)
 			{
 				
 				free(operator);
