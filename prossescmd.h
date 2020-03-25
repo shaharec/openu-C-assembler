@@ -1,4 +1,5 @@
 #include "DataStruct.h"
+#include "syntax.h"
 boolean prossesAsm(const char* fileName);
 boolean firstPass(FILE *fp);
 boolean secondPass(FILE *fp);

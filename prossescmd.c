@@ -1,6 +1,9 @@
 #include "prossescmd.h"
 
-
+/*input: file name 
+output:if the assembler succesfully worked-true else false
+the function gets the file name inishelize the unstruction/data counters
+and call the first pass, if sucsess go to next pass */
 boolean prossesAsm(const char* fileName)
 {
 	FILE *fp=NULL;
@@ -17,23 +20,32 @@ boolean prossesAsm(const char* fileName)
 				return true;
 			}
 		fclose(fp);		
-	printf("finish\n");
 	return false;
 	}
 }
+/*input: ponter to file- fp
+output:	boolean value of succsees
+the function sets the initial values of the memory counters
+and preform the first pass.
+in the first pass the function fill the lable table and checks the syntax of the file */
 boolean firstPass(FILE *fp){
 
 	char buff[LINE_LEN];
-	boolean error = false;
+	boolean error = false,passError = false, synError=false;
 	int fIndex=0;
 	IC=100;	/*counter for memory place init 100 place*/
 	DC=0;	/*counter for label place init 100 place*/
 	printf("************first pass************\n");
-	while (fgets(buff,LINE_LEN, fp) != NULL && !error) 
+	while (fgets(buff,LINE_LEN, fp) != NULL ) 
 	{
-		printf("%s",buff);
 		fIndex++;
-		error = !lineFirstPass(buff,fIndex);	
+		synError = !syntax_chack (buff, fIndex);
+		if(synError)
+			error =true;
+		if(!error)	
+			passError = !lineFirstPass(buff,fIndex);
+		if(passError)
+			error =true;	
 	}
 	if(!error){
 		updateDataLabels(IC);
@@ -41,6 +53,12 @@ boolean firstPass(FILE *fp){
 	}
 	return !error;
 }
+
+/*input: pointer to file- fp
+output: boolean value if the function sucsses
+the function sets unut values in the counters sets the fp pointer to the start of the file 
+and preform the second pass of the assembler.
+if an error hase occured retrun false else true*/
 boolean secondPass(FILE *fp){
 
 	char buff[LINE_LEN];
@@ -55,7 +73,7 @@ boolean secondPass(FILE *fp){
 		fIndex++;
 		error = !lineSecondPass(buff,fIndex);	
 	}
-	updateRAMCounters();
+	updateRAMCounters();/*update the sum of counters*/
 	printExT();
 	printEnT();
 	return !error;
@@ -63,43 +81,47 @@ boolean secondPass(FILE *fp){
 
 boolean lineSecondPass(char* line, int findex){
 	
-	lineWords *words = NULL;
+	lineWords *words = NULL;/*a pointer to a structer that contain the words in array*/
 	boolean notEmpty,error=false;
 	words = malloc(sizeof(lineWords));     	
-    words->size = 0;/*find first word in line*/
+    	words->size = 0;/*find first word in line*/
         notEmpty = getNextWordInLine(line,words);/*check if the line is not empty, if not save first word to fword*/
         if(notEmpty){/*if the row isnt emty (contain ' ' or tab only)*/
-        	if(Islabel(words->word->str)){/*if it's label*/
-          	  	if(getNextWordInLine(line,words)){/*if word in the place i exist*/
-            			if(isCmd((words->word+words->size-1)->str)!=-1){
-            				handleRAMWords(INST,line,words);
+        	if(Islabel(words->word->str)){/*if the first word is a label*/
+          	  	if(getNextWordInLine(line,words)){/*if there is another word*/
+            			if(isCmd((words->word+words->size-1)->str)!=-1){/*check if ist a command*/
+            				error = !handleRAMWords(INST,line,words);/*update RAM memory for a instruction row*/
             			}else{/*not command after label*/
-            				if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0 || strcmp((words->word+words->size-1)->str,STR_CMD)==0){
-           						handleRAMWords(DATA,line,words);
-            				}else	if(strcmp((words->word+words->size-1)->str,ENT_CMD)==0){
-            							if(getNextWordInLine(line,words))
-            								error = !(addToEnT((words->word+words->size-1)->str));
-            					}else {	error=true;
+            				if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0 || strcmp((words->word+words->size-1)->str,STR_CMD)==0){/*if string or data*/
+           						error = !handleRAMWords(DATA,line,words);/*update RAM memory for a instruction row*/
+            				}else	if(strcmp((words->word+words->size-1)->str,ENT_CMD)==0){/*check if .entry command*/
+            							if(getNextWordInLine(line,words))/*get lable after entry*/
+            								error = !(addToEnT((words->word+words->size-1)->str));/*add the lable after to enry lable*/
+            					}else {	error=true;/*unknown word*/
             						printf("error: unknown word: %s",(words->word+words->size-1)->str);
             						}
             			}
 			}		   
-			}else if(isCmd((words->word+words->size-1)->str)!=-1){
-            			handleRAMWords(INST,line,words);
-            	}else if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0 || strcmp((words->word+words->size-1)->str,STR_CMD)==0){/*not command after label*/
-           				handleRAMWords(DATA,line,words);
-            	}else if(strcmp((words->word+words->size-1)->str,ENT_CMD)==0){
-            		if(getNextWordInLine(line,words))
-            			error = !(addToEnT((words->word+words->size-1)->str));
+			}else if(isCmd((words->word+words->size-1)->str)!=-1){/*check if command*/
+            			error = !handleRAMWords(INST,line,words);/*update RAM memory for a instruction row*/
+            	}else if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0 || strcmp((words->word+words->size-1)->str,STR_CMD)==0){/*if string or data*/
+           			error = !handleRAMWords(DATA,line,words);/*update RAM memory for a data or string row*/
+            	}else if(strcmp((words->word+words->size-1)->str,ENT_CMD)==0){/*if it is entry row*/
+            		if(getNextWordInLine(line,words))/*next word should be a lable*/
+            			error = !(addToEnT((words->word+words->size-1)->str));/*add lable to entry table*/
             		}else if(strcmp((words->word+words->size-1)->str,EXT_CMD)!=0){/*not external line*/
             			printf("line: %d unknown word: %s line",findex,(words->word+words->size-1)->str); 
             			error = true;
             		}
             	freeWords(words);
            }
-	return !error;	
+	return !error;/*retun no error has occurd in line*/	
 }
 
+/*input:char *line 	: 	raw line from file
+	lineWords *words: 	an array of words fill with line words until INSTRUCTION command
+output: boolean value	: 	succesfully update RAM and external table
+the function update tha RAM and external table accourding INST line type*/
 boolean InstRAMWords(char *line,lineWords *words){
 		
 		unsigned int RAMWord[MAX_WORD_INST]={0};
@@ -191,7 +213,9 @@ boolean InstRAMWords(char *line,lineWords *words){
 													numWords++;
 													if(label->labelType==EX_LABEL)
 														addToExT(label->label,IC+numWords);
-												}else printf("error: unknown operand\n");
+												}else {printf("error: unknown operand\n");
+													return false;
+													}
 											}
 										}
 									}
@@ -297,8 +321,12 @@ boolean InstRAMWords(char *line,lineWords *words){
 	
 }
 
+/*input:char *line 	: 	raw line from file
+	lineWords *words: 	an array of words fill with line words until DATA command
+output: boolean value	: 	succesfully update RAM and external table
+the function update tha RAM and external table accourding DATA line type*/
 boolean DataRAMWords(char *line,lineWords *words){
-	char *p=NULL;
+	char *p=NULL;/*pointer for line*/
 	if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0){
 			while(getNextWordInLine(line,words)){/*while there are stil variables*/
 				addToMemory(atoi((words->word+words->size-1)->str),&DC);				
@@ -321,14 +349,18 @@ boolean DataRAMWords(char *line,lineWords *words){
 		
 
 }
-
+/*input:lnType lineType:	line type DATA/INST 
+	char *line : 		raw line from file
+	lineWords *words: 	an array of words fill with line words until DATA/INST command
+output: boolean value: 	succesfully update RAM and external table
+the function update tha RAM and external table accourding to line type*/
 boolean handleRAMWords(lnType lineType,char *line,lineWords *words){
 	
 	if(lineType==INST)
 		return InstRAMWords(line,words);
 	else if(lineType==DATA)
 		return DataRAMWords(line,words);
-	printf("only handle data or istruction ram words\n");
+	printf("only handle data or instruction RAM words\n");
 	return false;
 		
 }
@@ -372,7 +404,6 @@ boolean getword(lineWords *words){
 			i++;
 		}
 		*((words->word+words->size-1)->str+i) = '\0';
-		printf("%s\n",(words->word+words->size-1)->str);
 	}	
 	return find;
 }
@@ -435,7 +466,7 @@ boolean handleIC(lnType lineType,char *line,lineWords *words){/*handle internale
             }
       	}else if(strcmp((words->word+words->size-1)->str,STR_CMD)==0){ 
             	if(getNextWordInLine(line,words)){
-		      		if(isString((words->word+words->size-1)->str))/*check if valid string*/
+		      		if(isStr((words->word+words->size-1)->str))/*check if valid string*/
 		      			DC+=strlen((words->word+words->size-1)->str) - 2 + 1;/*ignor " in the start and end and add \0*/
 		        }else{	error = true;
 		        		 printf("error: no data was enterd\n");

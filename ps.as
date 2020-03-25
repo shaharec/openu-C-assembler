@@ -2,7 +2,7 @@
 ;aaaaa
 hello:	.entry LIST
 	.extern   fn1
-MAIN:    add  	r3  ,	LISTaaaaa;sada
+MAIN:    add  	r3 , ,	LIST;sada
 jsr   fn1
 LOOP:		prn  #48
 lea STR  , r6

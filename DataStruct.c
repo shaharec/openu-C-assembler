@@ -35,7 +35,8 @@ char opcode[OP_SIZE][OP_NAME_SIZE]={	/*commands in the assembler*/
 					"jsr",
 					"rts",
 					"stop"
-					};	
+					};
+						
 boolean addToMemory(unsigned int data,int *address){/*add a word to RAM*/
 	
 	if(memory == NULL){/*check if no word was entered to memory*/
@@ -259,7 +260,7 @@ void freeMemory(){
 	}
 }
 
-boolean isString(char* str){
+boolean isStr(char* str){
 	if((*str == '\"') && (*(str +strlen(str)-1) == '\"'))/*check if tther is " un the begining of the string and at the end*/
 		return true;
 	return false;

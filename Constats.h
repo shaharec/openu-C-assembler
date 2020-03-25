@@ -19,3 +19,7 @@
 #define STR_CMD		".string"	/*string commamd in the assembler*/
 #define EXT_CMD		".extern"	/*extern commamd in the assembler*/
 #define ENT_CMD		".entry"	/*entry commamd in the assembler*/
+#define MAX_COMMAND 	8		/*the maxsimom length of command/data/string*/
+#define FIRST 		0		/*number of first operand arguments*/
+#define SECOND 		1		/*number of second operand arguments*/
+#define ONLY 		2		/*number of only operand arguments*/

@@ -6,8 +6,12 @@
 #include <ctype.h>
 #include "Constats.h"
 
+
 typedef enum boolean{/*define type of boolean*/
 false,true}boolean;
+
+/*Typdefs and structiers*/
+typedef enum {com_mov=0, com_cmp, com_add, com_sub, com_lea, com_clr, com_not, com_inc, com_dec, com_jmp, com_bne, com_red, com_prn, com_jsr, com_rts, com_stop, guid_data, guid_string, guid_entry, guid_extern}cmdType;
 
 typedef enum lbType{/*label types*/
 DATA_LABEL,INST_LABEL,EX_LABEL, ENTRY_LABEL}lbType;
@@ -88,7 +92,7 @@ boolean addToExT(char* label,int address);		/*add to exteral calls table*/
 boolean addToEnT(char* label);				/*add to enternal table*/
 void printExT();					/*prints the external label calls*/
 void printEnT();					/*prints the external label calls*/
-boolean isString(char* str);				/*returns if str is an assembler valid string*/
+boolean isStr(char* str);				/*returns if str is an assembler valid string*/
 void updateDataLabels(int endIC);			/*update the label table for data addresses*/
 void updateRAMCounters();				/*update the number of counters in the memory after the firs pass*/
 void freeMemory();					/*free data structers memory*/
