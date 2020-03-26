@@ -10,8 +10,11 @@
 typedef enum boolean{/*define type of boolean*/
 false,true}boolean;
 
+
 /*Typdefs and structiers*/
-typedef enum {com_mov=0, com_cmp, com_add, com_sub, com_lea, com_clr, com_not, com_inc, com_dec, com_jmp, com_bne, com_red, com_prn, com_jsr, com_rts, com_stop, guid_data, guid_string, guid_entry, guid_extern}cmdType;
+typedef enum cmdType{com_mov=0, com_cmp, com_add, com_sub, com_lea, com_clr, com_not, com_inc, com_dec, com_jmp, com_bne, com_red, com_prn, com_jsr, com_rts, com_stop, guid_data, guid_string, guid_entry, guid_extern}cmdType; /*Number represents action codes.*/
+
+typedef enum AddMet{OneAddMet = 1, TowAddMet, ThreeAddMet, fourAddMet }AddMet; /*Several types of addressing methods*/
 
 typedef enum lbType{/*label types*/
 DATA_LABEL,INST_LABEL,EX_LABEL, ENTRY_LABEL}lbType;

@@ -18,7 +18,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 
 /*Input: Pointer to end of word and row number.
 Output: Moving on the characters to the end of the line and  return true if they are white spaces or a note. else false.*/
-boolean to_many_arg(char **last_char, int row_number);
+boolean to_many_arg(char **temp, int row_number);
 
 /*Input: Gets Pointer to the beginning and end of a word, comma counter, colon counter and row number.
 Output: Returns true if the first word in the line is a label, false if otherwise. Will update the counters if necessary and save the first word value in a row in the "command" variable. Promotes pointer values.*/
@@ -49,6 +49,6 @@ boolean isResinger (char * resinger);
 Output: Returns a number describing the same command, if no command is found, returns '-1'.*/
 cmdType Command_check(char * command);
 
-/*Input: Receiver String.
-Output: Returns true if the string is a language reserved language, otherwise a false will be returned*/
-boolean isReservWord(char* word,int row_number);
+/*Input: String and character length to be reset.
+Output: Reset the string.*/
+void zero_str (char * str, int len);

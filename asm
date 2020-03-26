@@ -1,6 +1,6 @@
 MAIN:	add r3 , LIST
 LOOP:	prn #48
-lea 	STR, r6
+lea 	STR, ,a	 r6
 inc 	r6
 mov 	*r6,K
 sub 	r1, r4
