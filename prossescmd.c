@@ -88,10 +88,11 @@ boolean lineSecondPass(char* line, int findex){
 	
 	lineWords *words = NULL;/*a pointer to a structer that contain the words in array*/
 	boolean notEmpty,error=false;
-	words = malloc(sizeof(lineWords));     	
-    	words->size = 0;/*find first word in line*/
-        notEmpty = getNextWordInLine(line,words);/*check if the line is not empty, if not save first word to fword*/
-        if(notEmpty){/*if the row isnt emty (contain ' ' or tab only)*/
+	words = malloc(sizeof(lineWords));
+	allcERR(words);     	
+	words->size = 0;/*find first word in line*/
+    notEmpty = getNextWordInLine(line,words);/*check if the line is not empty, if not save first word to fword*/
+    if(notEmpty){/*if the row isnt emty (contain ' ' or tab only)*/
         	if(Islabel(words->word->str)){/*if the first word is a label*/
           	  	if(getNextWordInLine(line,words)){/*if there is another word*/
             			if(isCmd((words->word+words->size-1)->str)!=-1){/*check if ist a command*/
@@ -129,13 +130,13 @@ output: boolean value	: 	succesfully update RAM and external table
 the function update tha RAM and external table accourding INST line type*/
 boolean InstRAMWords(char *line,lineWords *words){
 		
-		unsigned int RAMWord[MAX_WORD_INST]={0};
-		int i=0,numWords=1;/*at least one word*/
-		int reg=0;
-		labelAd *label=NULL;
-		
-		RAMWord[0]|=(isCmd((words->word+words->size-1)->str)<<OCAM_SBIT);/*add opcode */
-		RAMWord[0]|=A_THREE;/*turn on the A bit from ARE*/ 
+	unsigned int RAMWord[MAX_WORD_INST]={0};
+	int i=0,numWords=1;/*at least one word*/
+	int reg=0;
+	labelAd *label=NULL;
+	
+	RAMWord[0]|=(isCmd((words->word+words->size-1)->str)<<OCAM_SBIT);/*add opcode */
+	RAMWord[0]|=A_THREE;/*turn on the A bit from ARE*/ 
        	if(getNextWordInLine(line,words)){
       		switch (*((words->word+words->size-1)->str))
 			{
@@ -178,7 +179,6 @@ boolean InstRAMWords(char *line,lineWords *words){
 				}else {
 					label=labelExist((words->word+words->size-1)->str);/*check if secind operand is label*/
 					if(label!=NULL){/*check if its a label*/
-						RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 						RAMWord[1]=getLabelWord(label);
 						if(label->labelType==EX_LABEL)
 							addToExT(label->label,IC+numWords-1);	
@@ -187,15 +187,20 @@ boolean InstRAMWords(char *line,lineWords *words){
 							}
 				}			
 				if(getNextWordInLine(line,words)){
+					if(reg != -1)
+						RAMWord[0]|=(A_FOUR<<FOAM_SBIT);
+					else if(label!=NULL)
+						RAMWord[0]|=(A_TWO<<FOAM_SBIT);	
 					if(*((words->word+words->size-1)->str)=='#'){
 						RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
 						RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the word for # operand*/
 						numWords++;
-					}else{	reg = isReg((words->word+words->size-1)->str);
+					}else{	
+							reg = isReg((words->word+words->size-1)->str);
 							if(reg!=-1){
 								RAMWord[0] |= (A_FOUR<<SOAM_SBIT);
 								if(label == NULL)/*if the first operand was register*/ 
-										RAMWord[1] = getRegWord(reg,SOR_SBIT);
+										RAMWord[1] |= getRegWord(reg,SOR_SBIT);
 								else {
 										RAMWord[2] = getRegWord(reg,SOR_SBIT);
 										numWords++;
@@ -205,7 +210,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 										if(*((words->word+words->size-1)->str)=='*'){
 											reg = isReg((words->word+words->size-1)->str+1);
 											if(reg!=-1){
-												RAMWord[0]|=(A_THREE<<SOAM_SBIT);
+												RAMWord[0] |=(A_THREE<<SOAM_SBIT);
 												RAMWord[1] |= getRegWord(reg,SOR_SBIT);
 											}else{ 	printf("error: wrong in put * before reg\n");
 													return false;
@@ -225,7 +230,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 										}
 									}
 								}else{	if(reg != -1)
-										RAMWord[0]|=(A_FOUR<<FOAM_SBIT);
+										RAMWord[0]|=(A_FOUR<<SOAM_SBIT);
 									else if(label!=NULL)
 										RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 									} 
@@ -393,6 +398,7 @@ boolean getword(lineWords *words){
 			s=line;
 			if(((words->size)==1) || (strcmp((words->word+words->size-2)->str,STR_CMD)!=0)){/*if NOT a string*/
 				while(*line != '\t' && *line != ' ' && *line != ';' && *line != '\n' && *line !='\0' && *line != ',') line++;
+				
 			}else{	if(*line == '\"'){/*if its a string*/
 						line = s+strlen(s)-1;
 						while(*line != '\"') line--;
@@ -406,6 +412,7 @@ boolean getword(lineWords *words){
 	}
 	if(find){/*creat word*/
 		(words->word+words->size-1)->str = (char*)malloc(sizeof(char)*(e-s));
+		allcERR((words->word+words->size-1)->str);  
 		(words->word+words->size-1)->end = e;
 		while(s!=e){
 			*((words->word+words->size-1)->str+i) = *s;
@@ -427,11 +434,13 @@ returns if there is a nex word in line and update words */
 boolean getNextWordInLine(char* line,lineWords *words){
 	
 	if(words->size==0){
-        words->word = malloc(sizeof(lineWord));
-        words->word->end=line;
+        	words->word = malloc(sizeof(lineWord));
+        	allcERR(words->word);
+        	words->word->end=line;
         }
 	words->size++;/*move to next word*/
    	words->word = realloc(words->word,(words->size) *sizeof(lineWord));
+   	allcERR(words->word);
 	return (getword(words));
 }
 
@@ -502,6 +511,7 @@ boolean lineFirstPass(char* line, int findex){
         char label[LB_NAME_SIZE];
         boolean notEmpty,error = false;
 		words = malloc(sizeof(lineWords));
+		allcERR(words);
 		words->size=0;     	
         notEmpty = getNextWordInLine(line,words);/*check if the line is not empty, if not save first word to fword*/
         if(notEmpty){/*if the row isnt emty (contain ' ' or tab only)*/

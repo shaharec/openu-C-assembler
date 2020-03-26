@@ -43,7 +43,7 @@ void writeFiles(char* fileName){
 		fp = fopen(objFileN, "w+");
 		fprintf(fp, "%d %d", memory -> instructionC, memory -> dataC);
 		while (i < memory -> size) {
-			fprintf(fp, "\n%d %05o", (memory->word +i)->address,(int)(memory->word +i)->data);
+			fprintf(fp, "\n%04d %05o", (memory->word +i)->address,(int)(memory->word +i)->data);
 			i++;
 		}
 		fclose(fp);
@@ -54,7 +54,7 @@ void writeFiles(char* fileName){
 		fp = fopen(extFileN, "w+");
 		i = 0;
 		while (i < exT->size) {	    
-    			fprintf(fp, "%s %d\n",(exT->exCall+i)->label,(exT->exCall+i)->address);
+    			fprintf(fp, "%s %04d\n",(exT->exCall+i)->label,(exT->exCall+i)->address);
     			i++;
 		}
 		fclose(fp);

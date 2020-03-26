@@ -42,8 +42,10 @@ boolean addToMemory(unsigned int data,int *address){/*add a word to RAM*/
 	if(memory == NULL){/*check if no word was entered to memory*/
 		
 		memory = (RAM*)malloc(sizeof(RAM));
+		allcERR(memory);
 		memory->size = 1;
 		memory->word = (RAMword*)malloc(sizeof(RAMword));
+		allcERR(memory->word);
 		memory->word->address = *address;
 		memory->word->data = data;
 	}else	if(memory->size==RAM_MAX_SIZE){
@@ -52,6 +54,7 @@ boolean addToMemory(unsigned int data,int *address){/*add a word to RAM*/
 	}else	{
 		memory->size++;
 		memory->word = realloc(memory->word,(memory->size)*sizeof(RAMword));
+		allcERR(memory->word);
 		(memory->word + memory->size-1)->address = *address;
 		(memory->word + memory->size-1)->data =data;
 		}
@@ -67,13 +70,16 @@ boolean addToExT(char* label,int address){/*add a label ti the extrnal calls tab
 	if(exT == NULL){
 		
 		exT = (exTable*)malloc(sizeof(exTable));
+		allcERR(exT);
 		exT->size = 1;
 		exT->exCall = (exCall*) malloc(sizeof(exCall));
+		allcERR(exT->exCall);
 		exT->exCall->address = address;
 		strcpy(exT->exCall->label,label);
 	}else	{
 		exT->size++;
 		exT->exCall = realloc(exT->exCall,(exT->size)*sizeof(exCall));
+		allcERR(exT->exCall);
 		(exT->exCall + exT->size-1)->address = address;
 		strcpy((exT->exCall + exT->size-1)->label,label);
 		}	
@@ -85,18 +91,21 @@ boolean addToEnT(char* label){
 		
 	labelAd* labelAd=labelExist(label);
 	if(labelAd==NULL){
-		printf("entry lable doesnot exsist\n");
+		printf("entry label does not exsist\n");
 		return false;
 	}else if(enT == NULL){
 		
 		enT = (enTable*)malloc(sizeof(enTable));
+		allcERR(enT);
 		enT->size = 1;
 		enT->line = (entryLine*) malloc(sizeof(entryLine));
+		allcERR(enT->line);
 		enT->line->address = labelAd->address;
 		strcpy(enT->line->label,label);
 	}else	{
 		enT->size++;
 		enT->line = realloc(enT->line,(enT->size)*sizeof(entryLine));
+		allcERR(enT->line);
 		(enT->line + enT->size-1)->address = labelAd->address;
 		strcpy((enT->line + enT->size-1)->label,label);
 		}	
@@ -129,10 +138,13 @@ boolean addLb(char* label, lbType labelType){
       		return false;
     	}if (labelT==NULL) {
 		labelT = malloc(sizeof(labelTable));
+		allcERR(labelT);
 	        labelT->size = 0;
 	        labelT->labelAd = malloc(sizeof(labelAd));
+	        allcERR(labelT->labelAd);
 	}else{
 		labelT->labelAd = realloc(labelT->labelAd,((labelT->size) + 1) *sizeof(labelAd));
+		allcERR(labelT->labelAd);
     	}
 	/*****copy values to new row in the label table******/
 	strcpy((labelT->labelAd+(labelT->size))-> label, label);/*copy the name*/
@@ -170,7 +182,7 @@ labelAd* labelExist(char *label){/*check if the label exsit in table*/
 
 void printLbTable(void){
 	int i=0;
-	printf("*******lable table********\n");
+	printf("*******label table********\n");
 	if(labelT==NULL)
 		printf("label table is empty\n");
 	else for(i=0;i<labelT->size;i++)

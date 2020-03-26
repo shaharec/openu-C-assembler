@@ -435,14 +435,8 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 	    		
 	    		/*Finding the word length and allocate a dynamic memory for a variable.*/
 	    		len=*last_char-*first_char;
-	    		operator = (char *)malloc(len);
-	    		
-	    		/*Check if the allocation was done correctly.*/
-	    		if (operator == NULL)
-	    		{
-	    			printf("Allocation error.\n");
-	    			exit(1);
-	    		}
+	    		operator = (char *)malloc(sizeof(char)*len);
+	    		allcERR(operator);/*Check if the allocation was done correctly.*/
 	    		
 	    		/*Set a "operator "string valiue to zero.*/
 	    		zero_str (operator,  sizeof(operator));
@@ -465,13 +459,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
  		/*Finding the word length and allocate a dynamic memory for a variable.*/
 		len=*last_char-*first_char;
 		operator = (char *)malloc((sizeof(char))*len);
-	    	
-	    	/*Check if the allocation was done correctly.*/
-	    	if (operator == NULL)
-		{
-			printf("Allocation error.\n");
-    			exit(1);
-	    	}
+		allcERR(operator);/*Check if the allocation was done correctly.*/
 		
 		/*Set a "operator "string valiue to zero.*/
 		zero_str (operator,  sizeof(operator));

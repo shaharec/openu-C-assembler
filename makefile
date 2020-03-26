@@ -16,5 +16,5 @@ main.o: main.c DataStruct.h syntax.h prossescmd.h
 	gcc -ansi -Wall -pedantic -c main.c -lm
 
 clean:
-	rm *.o *~prossescmd
+	rm *.o *prossescmd
 

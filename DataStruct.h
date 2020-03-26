@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "Constats.h"
+#define allcERR(val){\
+	if (val == NULL)\
+	{printf("Allocation error.\n");\
+	exit(1);}\
+	}	
 
 
 typedef enum boolean{/*define type of boolean*/
