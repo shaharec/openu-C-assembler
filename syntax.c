@@ -6,11 +6,12 @@
 Output: Return true if the file is correct and return false and print the error essence if the input is incorrect.*/
 boolean syntax_chack (char *buff, int row_number)
 {	
-	char *first_char=NULL, *last_char=NULL;
-	char command [MAX_COMMAND] = {0};
-	cmdType comm_checker;
-	int comma_count=0, colon_count=0, len=0;
-	boolean flag = true, labled = false;
+	char *first_char=NULL, *last_char=NULL;		/*Pointer to the first character and pointer to the last character in the word.*/
+	char command [MAX_COMMAND] = {0};		/*String to hold action words.*/
+	cmdType comm_checker; 				/*A variable that holds a number represents an action word.*/
+	int comma_count=0, colon_count=0;		/*Comma and doubel dots counters.*/
+	int len=0;					/*A numeric variable that holds the length of each word.*/
+	boolean error = true, labled = false;		/*Flags for saving error and label appearances.*/
 	
 	printf("%d.%s", row_number, buff);
 	
@@ -50,12 +51,12 @@ boolean syntax_chack (char *buff, int row_number)
     		case guid_data: /*.data command*/
     		{
     			/*Check if the parameters are set correctly for the directive sentence.*/			
-			if ((next_num (&first_char, &last_char,&comma_count, row_number)== false) && (flag == true))
-    				flag = false;
+			if ((next_num (&first_char, &last_char,&comma_count, row_number)== false) && (error == true))
+    				error = false;
     			
     			/*Check if there are additional arguments in the line and update the flag.*/
-    			/*if ((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;*/
+    			/*if ((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;*/
     						
     			break;
     		}
@@ -63,8 +64,8 @@ boolean syntax_chack (char *buff, int row_number)
     		case guid_string:/*.string command*/
     		{
 			/*Check if the string is set correctly for the directive sentence.*/
-    			if((isString(&first_char , &last_char, &comma_count ,row_number )== false) && (flag == true))
-    				flag = false;
+    			if((isString(&first_char , &last_char, &comma_count ,row_number )== false) && (error == true))
+    				error = false;
     					
     			break;
     		}
@@ -83,7 +84,7 @@ boolean syntax_chack (char *buff, int row_number)
     			if(comma_count>0)
     			{
     				printf("Row %d: Illegal comma.\n", row_number);
-    				flag = false;
+    				error = false;
     				
     				/*Find the first character in the next word.*/
     				first_char++;
@@ -94,18 +95,18 @@ boolean syntax_chack (char *buff, int row_number)
     			if (*first_char == ';')
     			{
     				printf("Row %d: Invalid command line.\n", row_number);
-    				flag = false;
+    				error = false;
     						
     				break;
     			}
     		
     			/*Check if the argument is a valid label and update the flag.*/			
-    			if((islable (&first_char, &last_char, row_number)==false) && (flag == true))
-    				flag = false;
+    			if((islable (&first_char, &last_char, row_number)==false) && (error == true))
+    				error = false;
     			
     			/*Check if there are additional arguments in the line and update the flag.*/				
-    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;
+    			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     						
     			break;	
     					
@@ -125,7 +126,7 @@ boolean syntax_chack (char *buff, int row_number)
     			if(comma_count>0)
     			{
     				printf("Row %d: Illegal comma.\n", row_number);
-    				flag = false;
+    				error = false;
     				
     				first_char++;
     				Next_First_Char(&first_char,&comma_count);
@@ -135,18 +136,18 @@ boolean syntax_chack (char *buff, int row_number)
     			if (*first_char == ';')
     			{
     				printf("Row %d: Invalid command line.\n", row_number);
-    				flag = false;
+    				error = false;
     						
     				break;
     			}
     			
     			/*Check if the argument is a valid label and update the flag.*/		
-    			if((islable (&first_char, &last_char, row_number)==false) && (flag == true))
-    				flag = false;
+    			if((islable (&first_char, &last_char, row_number)==false) && (error == true))
+    				error = false;
     			
     			/*Check if there are additional arguments in the line and update the flag.*/				
-    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;
+    			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     						
     			break;	
     					
@@ -158,16 +159,16 @@ boolean syntax_chack (char *buff, int row_number)
     		case com_sub: /*sub command*/
     		{
     			/*Checking the first argument and updating the flag.*/
-     			if ((address_check(&first_char, &last_char, fourAddMet, FIRST, &comma_count, row_number)== false) && (flag == true)) /*Check if the flag needs to be updated.*/
-    				flag = false;
+     			if ((address_check(&first_char, &last_char, fourAddMet, FIRST, &comma_count, row_number)== false) && (error == true)) 
+    				error = false;
 				
 			/*Checking the second argument and updating the flag.*/		
-    			if ((address_check(&first_char, &last_char, ThreeAddMet, SECOND, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
-    				flag = false;
+    			if ((address_check(&first_char, &last_char, ThreeAddMet, SECOND, &comma_count, row_number) == false) && (error == true)) 
+    				error = false;
 			
 			/*Check if there are additional arguments in the line and update the flag.*/
-    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;
+    			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     				
     			break;
     		} 
@@ -176,12 +177,12 @@ boolean syntax_chack (char *buff, int row_number)
     		case com_cmp:/*cmp command*/
     		{
     			/*Checking the first argument and updating the flag.*/
-    			if ((address_check(&first_char, &last_char, fourAddMet, FIRST, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
-    				flag = false;    	
+    			if ((address_check(&first_char, &last_char, fourAddMet, FIRST, &comma_count, row_number) == false) && (error == true))
+    				error = false;    	
     			
     			/*Checking the second argument and updating the flag.*/				
-    			if ((address_check(&first_char, &last_char, fourAddMet, SECOND, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
-    				flag = false;
+    			if ((address_check(&first_char, &last_char, fourAddMet, SECOND, &comma_count, row_number) == false) && (error == true)) 
+    				error = false;
 
     			break;
     		}
@@ -190,16 +191,16 @@ boolean syntax_chack (char *buff, int row_number)
     		case com_lea:
     		{
     			/*Checking the first argument and updating the flag.*/
-    			if ((address_check(&first_char, &last_char, OneAddMet, FIRST, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
-    				flag = false;
+    			if ((address_check(&first_char, &last_char, OneAddMet, FIRST, &comma_count, row_number) == false) && (error == true)) 
+    				error = false;
     				
     			/*Checking the second argument and updating the flag.*/	
-    			if ((address_check(&first_char, &last_char, ThreeAddMet, SECOND, &comma_count, row_number) == false) && (flag == true)) /*Check if the flag needs to be updated.*/
-    				flag = false;
+    			if ((address_check(&first_char, &last_char, ThreeAddMet, SECOND, &comma_count, row_number) == false) && (error == true)) 
+    				error = false;
     			
     			/*Check if there are additional arguments in the line and update the flag.*/	
-    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;
+    			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     					
     			break;
     		}
@@ -209,12 +210,12 @@ boolean syntax_chack (char *buff, int row_number)
     		case com_bne:/*ben command*/
     		{
     			/*Test the only argument and update the flag.*/
-			if ((address_check(&first_char, &last_char, TowAddMet, ONLY,&comma_count, row_number) == false) && (flag == true)) 
-    				flag = false;
+			if ((address_check(&first_char, &last_char, TowAddMet, ONLY,&comma_count, row_number) == false) && (error == true)) 
+    				error = false;
     			
     			/*Check if there are additional arguments in the line and update the flag.*/	
-    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;
+    			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     					
     			break;
     		}
@@ -228,12 +229,12 @@ boolean syntax_chack (char *buff, int row_number)
     		case com_jsr:/*jsr command*/
     		{
     			/*Test the only argument and update the flag.*/
-			if ((address_check(&first_char, &last_char, ThreeAddMet, ONLY, &comma_count, row_number) == false) && (flag == true)) 
-    				flag = false;
+			if ((address_check(&first_char, &last_char, ThreeAddMet, ONLY, &comma_count, row_number) == false) && (error == true)) 
+    				error = false;
     			
     			/*Check if there are additional arguments in the line and update the flag.*/
-    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;
+    			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     			break;
     		}
     			
@@ -241,12 +242,12 @@ boolean syntax_chack (char *buff, int row_number)
     		case com_prn:/*prn command*/
     		{
     			/*Test the only argument and update the flag.*/
-			if ((address_check(&first_char, &last_char, fourAddMet, ONLY, &comma_count, row_number) == false) && (flag == true)) 
-    				flag = false;
+			if ((address_check(&first_char, &last_char, fourAddMet, ONLY, &comma_count, row_number) == false) && (error == true)) 
+    				error = false;
     			
     			/*Check if there are additional arguments in the line and update the flag.*/	
-    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;
+    			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     				
     			break;
     		}
@@ -256,8 +257,8 @@ boolean syntax_chack (char *buff, int row_number)
     		case com_stop:/*stop command*/
     		{
     			/*Check if there are additional arguments in the line and update the flag.*/
-    			if((to_many_arg(&last_char, row_number)== false) && (flag == true))
-    				flag = false;
+    			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     					
     			break;
     		}
@@ -266,14 +267,14 @@ boolean syntax_chack (char *buff, int row_number)
     		default:
     		{
     			printf("Row %d: Invalid command line.\n", row_number);
-    					flag = false;
+    					error = false;
     						
     			break;	
     		}
     			
 	}
 	
-	return flag;	
+	return error;	
 	
 }	    		
 	    		
@@ -808,7 +809,7 @@ boolean isNum (char **temp, int row_number)
 }
 
 /*Input: Gets a string.
-Output: Returns true if the string describes a hamster name. False if otherwise.*/
+Output: Returns true if the string describes a register. False if otherwise.*/
 boolean isResinger (char * resinger)
 {
 	/*A comparison of the string that receives the function with the stored register names to the language if there is a match will be returned true.*/
