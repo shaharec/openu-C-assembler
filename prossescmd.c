@@ -54,7 +54,7 @@ boolean firstPass(FILE *fp){
 	return !error;
 }
 
-/*input: pointer to file- fp
+/*input: FILE *fp : pointer to source file
 output: boolean value if the function sucsses
 the function sets unut values in the counters sets the fp pointer to the start of the file 
 and preform the second pass of the assembler.
@@ -79,6 +79,11 @@ boolean secondPass(FILE *fp){
 	return !error;
 }
 
+/*input: FILE *fp : pointer to source file
+output: boolean value if the function sucsses
+the function sets unut values in the counters sets the fp pointer to the start of the file 
+and preform syntax check of the file and first pass of the assembler.
+if an error hase occured retrun false else true*/
 boolean lineSecondPass(char* line, int findex){
 	
 	lineWords *words = NULL;/*a pointer to a structer that contain the words in array*/
@@ -349,6 +354,7 @@ boolean DataRAMWords(char *line,lineWords *words){
 		
 
 }
+
 /*input:lnType lineType:	line type DATA/INST 
 	char *line : 		raw line from file
 	lineWords *words: 	an array of words fill with line words until DATA/INST command
@@ -367,7 +373,10 @@ boolean handleRAMWords(lnType lineType,char *line,lineWords *words){
 
 
 
-
+/*input	: lineWords *words: pointer to line words, the last place in words array is empty
+output	: succsess of falier in filling the last place in the word array
+the function update the words structer,put the pointer to next word in the added word pointer end
+*/
 boolean getword(lineWords *words){
 
 	boolean find = false;/*find first word*/
@@ -410,6 +419,11 @@ boolean getword(lineWords *words){
 
 
 
+/*input	:char *line		: the raw line from file
+	 lineWords *words	: structer that contain seperaet words in array words->word
+output	:boolean value		: next word exsist or not
+the function update the words argument and allocate space for new word.
+returns if there is a nex word in line and update words */
 boolean getNextWordInLine(char* line,lineWords *words){
 	
 	if(words->size==0){
@@ -422,8 +436,12 @@ boolean getNextWordInLine(char* line,lineWords *words){
 }
 
 
-boolean handleIC(lnType lineType,char *line,lineWords *words){/*handle internale counter by the type of label
+/*input:	lnType lineType	: type
+		char *line	:
+		lineWords *words:
+handle insruction counter by the type of label
 (INST = 'add','move...,DATA =.string "asf",.data 120,2, EXTERN = .extern)*/	
+boolean handleIC(lnType lineType,char *line,lineWords *words){
 	boolean error = false;
 	if(lineType == INST){
 		IC++;/*instruction word*/
@@ -543,6 +561,8 @@ boolean lineFirstPass(char* line, int findex){
 	return !error;	
 }
 
+/*input	: lineWords *words	: structure of line words
+the function free dynamic memory that was allocated*/
 void freeWords(lineWords *words){/*free an array of strings*/
 	int i=0;
 	if(words!=NULL){
