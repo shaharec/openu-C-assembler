@@ -273,7 +273,9 @@ boolean InstRAMWords(char *line,lineWords *words){
 											}
 								}
 							}
-						}else RAMWord[0]|=(A_THREE<<SOAM_SBIT);
+						}else {	RAMWord[0]|=(A_THREE<<SOAM_SBIT);
+							RAMWord[1] = getRegWord(reg,SOR_SBIT);
+							}
 					}else{ 	printf("error: wrong in put * before reg\n");
 							return false;
 							}
