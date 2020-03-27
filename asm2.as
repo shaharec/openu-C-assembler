@@ -14,6 +14,7 @@ clr K
 sub L3, L3
 .entry MAIN
 jmp LOOP
+.extern fn1
 END: stop
 STR: .string "abcd"
 LIST: .data 6, -9

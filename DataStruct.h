@@ -5,18 +5,19 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "Constats.h"
+/*macros*/
+/*check for allocation error*/
 #define allcERR(val){\
 	if (val == NULL)\
 	{printf("Allocation error.\n");\
 	exit(1);}\
 	}	
 
+/*Typdefs and structiers*/
 
 typedef enum boolean{/*define type of boolean*/
 false,true}boolean;
 
-
-/*Typdefs and structiers*/
 typedef enum cmdType{com_mov=0, com_cmp, com_add, com_sub, com_lea, com_clr, com_not, com_inc, com_dec, com_jmp, com_bne, com_red, com_prn, com_jsr, com_rts, com_stop, guid_data, guid_string, guid_entry, guid_extern}cmdType; /*Number represents action codes.*/
 
 typedef enum AddMet{OneAddMet = 1, TowAddMet, ThreeAddMet, fourAddMet }AddMet; /*Several types of addressing methods*/

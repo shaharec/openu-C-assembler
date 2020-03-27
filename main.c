@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "prossescmd.h"
 
-void writeFiles(char* fileName);
+void writeFiles(char* fileName);/*export the assembler tables to files*/
 
 int main(int argc, char * argv[]){
 	
@@ -11,14 +11,14 @@ int main(int argc, char * argv[]){
 	if(argc==1)
 		printf("no file recived\n");
 	else{
-		for(i=1;i<argc;i++){
+		for(i=1;i<argc;i++){/*for every file entered*/
 			fileName = malloc((strlen(argv[i]) + strlen(".as") + 1)*sizeof(char));
 			strcpy(fileName, argv[i]);
-			strcat(fileName, ".as");
-			if(prossesAsm(fileName))
-				writeFiles(argv[i]);	
-			freeMemory();
-			free(fileName);
+			strcat(fileName, ".as");/*creat file name with .as ending*/
+			if(prossesAsm(fileName))/*activate assembler*/
+				writeFiles(argv[i]);	/*if success export to files*/
+			freeMemory();/*free allocatef memory of the assembler*/
+			free(fileName);/*free string of file name*/
 		}
 	}
 	return 1;
@@ -71,7 +71,7 @@ void writeFiles(char* fileName){
 	}
 
 
-	printf("\nFile %s has been successfully compiled.\n", fileName);
+	printf("File %s.as has been successfully compiled.\n", fileName);
 	free(objFileN);
 	free(extFileN);
 	free(entFileN);

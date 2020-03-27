@@ -7,6 +7,7 @@ RAM *memory=NULL;/*RAM pointer for memory*/
 labelTable* labelT = NULL;/*label tabels*/
 exTable* exT=NULL;/*external table for external file*/
 enTable* enT=NULL;/*entry table, contain entry calls*/
+
 char reg[REG_NUM][REG_NAME_LEN]={/*registers in the system*/	
 					"r0",
 					"r1",
@@ -36,44 +37,53 @@ char opcode[OP_SIZE][OP_NAME_SIZE]={	/*commands in the assembler*/
 					"rts",
 					"stop"
 					};
-						
-boolean addToMemory(unsigned int data,int *address){/*add a word to RAM*/
+
+
+/*input	:unsigned int data	:data word
+output	: boolean value if succsefuly added a word to RAM
+the function adds data word in the RAM memory structer*/						
+boolean addToMemory(unsigned int data,int *address){
 	
-	if(memory == NULL){/*check if no word was entered to memory*/
+	if(memory == NULL){/*check if no word was entered to memory, allocate memory for tabel*/
 		
 		memory = (RAM*)malloc(sizeof(RAM));
-		allcERR(memory);
+		allcERR(memory);/*check for allocation error*/
 		memory->size = 1;
 		memory->word = (RAMword*)malloc(sizeof(RAMword));
 		allcERR(memory->word);
 		memory->word->address = *address;
 		memory->word->data = data;
-	}else	if(memory->size==RAM_MAX_SIZE){
+	}else	if(memory->size==RAM_MAX_SIZE){/*check the number of words in the memory*/
 			printf("not enogth ram memory: over %d RAM words",RAM_MAX_SIZE);
 			return false;
-	}else	{
+	}else	{/*allocate new words in the memory*/
 		memory->size++;
 		memory->word = realloc(memory->word,(memory->size)*sizeof(RAMword));
-		allcERR(memory->word);
+		allcERR(memory->word);/*check for allocation error*/
 		(memory->word + memory->size-1)->address = *address;
 		(memory->word + memory->size-1)->data =data;
 		}
-	*address+=1;	
+	*address+=1;/*add to memory couner 1(DC or IC)*/	
+	/*code for checking the labels and binery representation:*//*
 	printf("address:%d  data: %d bin data: ",(memory->word +memory->size-1)->address,data);
 	printBinary((memory->word + memory->size-1)->data);
-	printf("\n");
+	printf("\n");*/
 	return true;
 }
 
-boolean addToExT(char* label,int address){/*add a label ti the extrnal calls table*/
+/*input	:char* label: label name
+	 int address: address where the external label was called
+output	:boolean values:successfuly update external tabel.	
+the function adds a label to the extrnal calls table by address*/
+boolean addToExT(char* label,int address){/*add a label to the extrnal calls table*/
 		
-	if(exT == NULL){
+	if(exT == NULL){/*check if external table is empty, allocate memory for table and row*/
 		
 		exT = (exTable*)malloc(sizeof(exTable));
-		allcERR(exT);
+		allcERR(exT);/*check for allocation error*/
 		exT->size = 1;
 		exT->exCall = (exCall*) malloc(sizeof(exCall));
-		allcERR(exT->exCall);
+		allcERR(exT->exCall);/*check for allocation error*/
 		exT->exCall->address = address;
 		strcpy(exT->exCall->label,label);
 	}else	{
@@ -87,11 +97,15 @@ boolean addToExT(char* label,int address){/*add a label ti the extrnal calls tab
 	return true;
 }
 
-boolean addToEnT(char* label){
+/*input	:char* label: label name
+	 int address: address where the external label was called
+output	:boolean values:successfuly update external tabel.	
+the function adds a label to the extrnal calls table by address*/
+boolean addToEnT(char* label){/*add lable to entry table*/
 		
-	labelAd* labelAd=labelExist(label);
-	if(labelAd==NULL){
-		printf("entry label does not exsist\n");
+	labelAd* labelAd=labelExist(label);/*find lable address in lable table*/
+	if(labelAd==NULL){/*if label doesnt exist*/
+		printf("entry label does not exsist: %s\n",label);
 		return false;
 	}else if(enT == NULL){
 		
@@ -131,6 +145,7 @@ boolean Islabel(char *str){
 }
 
 
+
 boolean addLb(char* label, lbType labelType){
    
 	if(labelExist(label)!=NULL){
@@ -160,6 +175,9 @@ boolean addLb(char* label, lbType labelType){
     	return true;
 }
 
+/*input	: char* str : string of opcode
+output	: int value of the opcode, if doesnt exist returns -1
+the function return the value of command in the assembler if doesnt exist returns -1*/
 int isCmd(char *str){
 	int i=0;
 	for(i=0;i<OP_SIZE;i++)
@@ -169,7 +187,10 @@ int isCmd(char *str){
 		
 }
 
-
+/*input	:char *label : name of label
+output	:pointer to label in the lable table
+the function returns pointer to label in the label table using the name of the label/
+if not found returns NULL*/
 labelAd* labelExist(char *label){/*check if the label exsit in table*/
 	int i=0;
 	if(labelT == NULL)/*check if labelT is null*/
@@ -180,6 +201,8 @@ labelAd* labelExist(char *label){/*check if the label exsit in table*/
 	return NULL;
 }
 
+/*the function prints the label table
+checking function*/
 void printLbTable(void){
 	int i=0;
 	printf("*******label table********\n");
@@ -189,6 +212,9 @@ void printLbTable(void){
 		printf("label: %s address: %d label type: %d\n",(labelT->labelAd + i)->label,(labelT->labelAd + i)->address,(labelT->labelAd + i)->labelType);
 }
 
+/*input : char *str
+output	: int value : value of a information word of label value word
+the function get label and returns the RAM information word */
 int isReg(char *str){
 	
 	int i=0;
@@ -199,6 +225,10 @@ int isReg(char *str){
 	return -1;
 }
 
+/*input : int reg : the number of the register
+	  int offsett : offset of the reg value in the new information word
+output	: int value : value of a information word of register  word
+the function get label and returns the RAM information word */
 int getRegWord(int reg,int offset){
 	
 	unsigned int word=0;
@@ -207,6 +237,9 @@ int getRegWord(int reg,int offset){
 	return word;
 }
 
+/*input : labelAd* label : label to get information word from
+output	: int value : value of a information word of label value word
+the function get label and returns the RAM information word */
 int getLabelWord(labelAd* label){
 	
 	unsigned int word=0;
@@ -217,6 +250,9 @@ int getLabelWord(labelAd* label){
 	return word;
 }
 
+/*input : char* num : a string that contain number
+output	: int value : value of a information word of direct value word
+the function get string num and returns the RAM information word */
 int getDirectWord(char *num){
 	
 	unsigned int word=0;
@@ -225,6 +261,9 @@ int getDirectWord(char *num){
 	return word; 
 }
 
+/*input	: unsigned x: number x should represente a word in RAM
+print binery representation of X number
+this function is for checking the program works*/
 void printBinary(unsigned x){
 
     if (x != 1 && x != 0) 
@@ -233,7 +272,9 @@ void printBinary(unsigned x){
     printf("%d", x & 1); 
 } 
 
-void printExT(){
+/*print external tabel
+this function is for checking the program works*/
+void printExT(void){
 	int i=0;
 	printf("*******external table********\n");
 	if(exT!=NULL)
@@ -241,7 +282,9 @@ void printExT(){
 			printf("ex label :%s, address called: %d\n",(exT->exCall+i)->label,(exT->exCall+i)->address);
 }
 
-void printEnT(){
+/*print entry tabel
+this function is for checking the program works*/
+void printEnT(void){
 	int i=0;
 	printf("*******entry table********\n");
 	if(enT!=NULL)
@@ -249,35 +292,46 @@ void printEnT(){
 			printf("en label :%s, address: %d\n",(enT->line+i)->label,(enT->line+i)->address);
 }
 
-void freeMemory(){
+/*free all allocated memory of global variables*/
+void freeMemory(void){
 	/*free RAM*/
 	if(memory!=NULL){
 		free(memory->word);
 		free(memory);
+		memory=NULL;
 	}
 	/*free label table*/
 	if(labelT!=NULL){
 		free(labelT->labelAd);
 		free(labelT);
+		labelT=NULL;
 	}
 	/*free external calls*/	
 	if(exT!=NULL){
 		free(exT->exCall);
 		free(exT);
+		exT=NULL;
 	}
 	/*free enternal labels*/	
 	if(enT!=NULL){
 		free(enT->line);
 		free(enT);
+		enT=NULL;
 	}
 }
 
+/*input	: char* str :string that sould be in the format "*****" when *** are diffrent chares
+output	: boolean value if the string is in the right format*/
 boolean isStr(char* str){
 	if((*str == '\"') && (*(str +strlen(str)-1) == '\"'))/*check if tther is " un the begining of the string and at the end*/
 		return true;
 	return false;
 }
 
+/*input	:int endIC : the address of the last instruction word+1
+the fuction update the DATA labels address in the label tabel.
+using the endIC address.
+*/
 void updateDataLabels(int endIC){
 	int i=0;
 	if(labelT == NULL)/*check if labelT is null*/
@@ -288,7 +342,10 @@ void updateDataLabels(int endIC){
 			}
 }
 
-void updateRAMCounters(){
+/*the fuction update the sum of instruction and data words in the RAM memory header
+the DC should contain the last address of the memory and the IC should contain the last address 
+of instructions*/
+void updateRAMCounters(void){
 	
 	if(memory != NULL){
 		memory->instructionC = IC-MEMORY_START;

@@ -32,24 +32,24 @@ boolean firstPass(FILE *fp){
 
 	char buff[LINE_LEN];
 	boolean error = false,passError = false, synError=false;
-	int fIndex=0;
+	int fIndex=0;/*file line index*/
 	IC=100;	/*counter for memory place init 100 place*/
 	DC=0;	/*counter for label place init 100 place*/
-	printf("************first pass************\n");
-	while (fgets(buff,LINE_LEN, fp) != NULL ) 
+	/*printf("************first pass************\n");print first pass*/
+	while (fgets(buff,LINE_LEN, fp) != NULL ) /*read line to buffer*/
 	{
 		fIndex++;
 		synError = !syntax_chack (buff, fIndex);
-		if(synError)
+		if(synError && !error)
 			error =true;
 		if(!error)	
 			passError = !lineFirstPass(buff,fIndex);
-		if(passError)
+		if(passError && !error)
 			error =true;	
 	}
-	if(!error){
+	if(!error){/*if didnt recived error*/
 		updateDataLabels(IC);
-		printLbTable();/*print labels table*/
+		/*printLbTable();print labels table*/
 	}
 	return !error;
 }
@@ -67,7 +67,7 @@ boolean secondPass(FILE *fp){
 	fseek(fp,0,SEEK_SET);/*return to start of the file*/
 	DC=IC;			/*end of instructions memory from first pass*/
 	IC=MEMORY_START;	/*counter for memory place init 100 place*/
-	printf("************second pass************\n");
+	/*printf("************second pass************\n");print start of second line*/
 	while (fgets(buff,LINE_LEN, fp) != NULL && !error) 
 	{
 		fIndex++;
@@ -104,7 +104,7 @@ boolean lineSecondPass(char* line, int findex){
             							if(getNextWordInLine(line,words))/*get lable after entry*/
             								error = !(addToEnT((words->word+words->size-1)->str));/*add the lable after to enry lable*/
             					}else {	error=true;/*unknown word*/
-            						printf("error: unknown word: %s",(words->word+words->size-1)->str);
+            						printf("error: unknown word: %s in line :%d",(words->word+words->size-1)->str,findex);
             						}
             			}
 			}		   
@@ -116,7 +116,7 @@ boolean lineSecondPass(char* line, int findex){
             		if(getNextWordInLine(line,words))/*next word should be a lable*/
             			error = !(addToEnT((words->word+words->size-1)->str));/*add lable to entry table*/
             		}else if(strcmp((words->word+words->size-1)->str,EXT_CMD)!=0){/*not external line*/
-            			printf("line: %d unknown word: %s line",findex,(words->word+words->size-1)->str); 
+            			printf("unknown word: %s in line: %d",(words->word+words->size-1)->str,findex); 
             			error = true;
             		}
             	freeWords(words);
@@ -130,24 +130,23 @@ output: boolean value	: 	succesfully update RAM and external table
 the function update tha RAM and external table accourding INST line type*/
 boolean InstRAMWords(char *line,lineWords *words){
 		
-	unsigned int RAMWord[MAX_WORD_INST]={0};
-	int i=0,numWords=1;/*at least one word*/
-	int reg=0;
-	labelAd *label=NULL;
-	
+	unsigned int RAMWord[MAX_WORD_INST]={0};/*an array that contain the words to add to the RAM*/
+	int i=0,numWords=1;/*i: index, numWords: the number of words to add to the RAM*/
+	int reg=-1;/*register variable,setes to -1,-no found*/
+	labelAd *label=NULL;/*label pointer*/
 	RAMWord[0]|=(isCmd((words->word+words->size-1)->str)<<OCAM_SBIT);/*add opcode */
 	RAMWord[0]|=A_THREE;/*turn on the A bit from ARE*/ 
-       	if(getNextWordInLine(line,words)){
-      		switch (*((words->word+words->size-1)->str))
+       	if(getNextWordInLine(line,words)){/*if there is a next word in line*/
+      		switch (*((words->word+words->size-1)->str))/*check the firs cher of operand*/
 			{
 				case '#':
-				RAMWord[1]=getDirectWord((words->word+words->size-1)->str);/*get the word for # operand*/ 
-				numWords++;
+				RAMWord[1]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
+				numWords++;/*add information word*/
 				if(getNextWordInLine(line,words)){
-					RAMWord[0]|=(A_ONE<<FOAM_SBIT);/*adress methode 0 place in 7 bit*/
-					numWords++;
+					RAMWord[0]|=(A_ONE<<FOAM_SBIT);/*adress methode of the first operand*/
+					numWords++;/*add second operand information word*/
 					label=labelExist((words->word+words->size-1)->str);/*check if second operand is label*/
-					if(label!=NULL){
+					if(label!=NULL){/*if the second operand is a label*/
 						RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 						RAMWord[2]=getLabelWord(label);
 						if(label->labelType==EX_LABEL)
@@ -237,7 +236,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 						
 				break;
 			
-				case '*':
+				case '*':/*type of operanf *register*/
 				reg = isReg((words->word+words->size-1)->str+1);
 				if(reg!=-1){
 					RAMWord[1] = getRegWord(reg,FOR_SBIT);
@@ -279,7 +278,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 							}
 				break;
 				
-				default:
+				default:/*first operand is a label*/
 				label=labelExist((words->word+words->size-1)->str);/*check if second operand is label*/
 				if(label!=NULL){
 					RAMWord[1] = getLabelWord(label);
@@ -386,7 +385,7 @@ boolean getword(lineWords *words){
 
 	boolean find = false;/*find first word*/
 	char *s = NULL,*e=NULL;/*start and end pointers for the requaierd word*/
-	char *line=NULL;
+	char *line=NULL;/*pointer to char in line*/
 	int i=0;/*index*/
 	(words->word+words->size-1)->str=NULL;
 	if(words->size==1)/*if were finding the first word look for the first end*/
@@ -426,8 +425,8 @@ boolean getword(lineWords *words){
 
 
 
-/*input	:char *line		: the raw line from file
-	 lineWords *words	: structer that contain seperaet words in array words->word
+/*input	:char *line			: the raw line from file
+		 lineWords *words	: structer that contain seperaet words in array words->word
 output	:boolean value		: next word exsist or not
 the function update the words argument and allocate space for new word.
 returns if there is a nex word in line and update words */
@@ -446,8 +445,8 @@ boolean getNextWordInLine(char* line,lineWords *words){
 
 
 /*input:	lnType lineType	: type
-		char *line	:
-		lineWords *words:
+		char *line	: raw line from file
+		lineWords *words: lineWords contain the words in the line in words->word array
 handle insruction counter by the type of label
 (INST = 'add','move...,DATA =.string "asf",.data 120,2, EXTERN = .extern)*/	
 boolean handleIC(lnType lineType,char *line,lineWords *words){
@@ -500,16 +499,20 @@ boolean handleIC(lnType lineType,char *line,lineWords *words){
 		        	}
             }
 	}
-	printf("IC:     %d\n",IC);
+	/*printf("IC:     %d\n",IC); check the IC counetr in first pass*/
 	return !error;
 
 }
 
+/*input	:char* line: raw line
+	 	 int findex: index of line in the file
+output	:boolean value of success or failier of first pass */
 boolean lineFirstPass(char* line, int findex){
    
-        lineWords *words = NULL;
-        char label[LB_NAME_SIZE];
+        lineWords *words = NULL;/*lineWords pointer to structure*/
+        char label[LB_NAME_SIZE];/*label name*/
         boolean notEmpty,error = false;
+        labelAd *labelp = NULL;/*pointer to lable*/
 		words = malloc(sizeof(lineWords));
 		allcERR(words);
 		words->size=0;     	
@@ -531,43 +534,48 @@ boolean lineFirstPass(char* line, int findex){
             				}else if(strcmp(((words->word+words->size-1)->str),EXT_CMD) == 0){/*external line*/
           	  						if(getNextWordInLine(line,words)){
           	  							if(labelExist((words->word+words->size-1)->str)!=NULL){/*if label already exsist*/	
-            								error = true;
-            								printf("error label exsist\n");
+            								if(labelp->labelType!=EX_LABEL){/*if the lable type is not external*/
+            									error = true;
+            									printf("error diffrent decleration of label : %s in line: %d\n",(words->word+words->size-1)->str,findex);
+            								}
             							}else {
-            								error = !addLb((words->word+words->size-1)->str, EX_LABEL);
+            								error = !addLb((words->word+words->size-1)->str, EX_LABEL);/*add external label*/
             								}
             						}
             					}
             			}
             				}else {	error = true;
-            						printf("error in syntax\n");
+            						printf("error in syntax line : %d\n", findex);
             						}
 			}else {
 					if(isCmd((words->word+words->size-1)->str)!=-1){/*if its a command*/
-            			error = !handleIC(INST,line,words);
+            					error = !handleIC(INST,line,words);
             	}else{ 	
             			if((strcmp((words->word+words->size-1)->str,DATA_CMD)==0) || (strcmp((words->word+words->size-1)->str,STR_CMD) == 0)){/*not command after label*/
            						error = !handleIC(DATA,line,words);
             			}else{ 	
             					if(strcmp(((words->word+words->size-1)->str),EXT_CMD) == 0){/*external line*/
           	  						if(getNextWordInLine(line,words)){
-          	  							if(labelExist((words->word+words->size-1)->str)!=NULL){/*if label already exsist*/	
-            								error = true;
-            								printf("error label exsist\n");
+          	  							labelp = labelExist((words->word+words->size-1)->str);
+          	  							if(labelp!=NULL){/*if label already exsist*/	
+            								if(labelp->labelType!= EX_LABEL){/*if the lable type is not external*/
+            									error = true;
+            									printf("error diffrent decleration of label : %s in line: %d\n",(words->word+words->size-1)->str,findex);
+            								}
             							}else {
             								error = !addLb((words->word+words->size-1)->str, EX_LABEL);
             								}
             						}
             					}else{ if(strcmp((words->word+words->size-1)->str,ENT_CMD) != 0){
-            							 	printf("line: %d unknown word: %s line",findex,(words->word+words->size-1)->str); 
+            							 	printf("unknown word: %s in line: %d",(words->word+words->size-1)->str,findex); 
             							 error = true; 
             							}
             						}
             			}
-            	freeWords(words);
 				}         
           	}
 	}
+	freeWords(words);
 	return !error;	
 }
 
