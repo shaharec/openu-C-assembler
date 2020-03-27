@@ -11,7 +11,7 @@ boolean prossesAsm(const char* fileName)
 	DC=0;	/*counter for label place init 0 place*/
 	fp = fopen(fileName, "r");
     	if (fp == NULL){
-        	printf("no file found\n");
+        	printf("%s No such file\n",fileName);
         	return false;}
         else{
 		if(firstPass(fp))
@@ -228,9 +228,10 @@ boolean InstRAMWords(char *line,lineWords *words){
 											}
 										}
 									}
-								}else{	if(reg != -1)
+								}else{	if(reg != -1){
 										RAMWord[0]|=(A_FOUR<<SOAM_SBIT);
-									else if(label!=NULL)
+										RAMWord[1] = getRegWord(reg,SOR_SBIT);
+									}else if(label!=NULL)
 										RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 									} 
 						
