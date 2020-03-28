@@ -47,6 +47,8 @@ boolean lineSecondPass(char* line, int findex){
 	return !error;/*retun no error has occurd in line*/	
 }
 
+
+
 /*input:lnType lineType:	line type DATA/INST 
 	char *line : 		raw line from file
 	lineWords *words: 	an array of words fill with line words until DATA/INST command
@@ -102,7 +104,10 @@ boolean InstRAMWords(char *line,lineWords *words){
 									}else{ 	printf("error: wrong input * before reg\n");
 											return false;
 										}
-							}else {	printf("error: %s unknown operator\n",(words->word+words->size-1)->str);
+							}else if (*((words->word+words->size-1)->str) == '#' ){
+								RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
+								RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
+								}else{	printf("error: %s unknown operator\n",(words->word+words->size-1)->str);
 									return false;
 									}
 						}
@@ -161,9 +166,12 @@ boolean InstRAMWords(char *line,lineWords *words){
 													numWords++;
 													if(label->labelType==EX_LABEL)
 														addToExT(label->label,IC+numWords);
+												}else if (*((words->word+words->size-1)->str) == '#' ){
+																RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
+																RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
 												}else {printf("error: unknown operand\n");
-													return false;
-													}
+																return false;
+															}
 											}
 										}
 									}
@@ -207,7 +215,10 @@ boolean InstRAMWords(char *line,lineWords *words){
 										}else{ 	printf("error: wrong in put * before reg\n");
 												return false;
 												}
-									}else{ 	printf("error: unknown operatopr\n");
+									}else if (*((words->word+words->size-1)->str) == '#' ){/*check direct numnber*/
+														RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
+														RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
+								}else{ 	printf("error: unknown operatopr\n");
 											return false;
 											}
 								}
@@ -252,6 +263,9 @@ boolean InstRAMWords(char *line,lineWords *words){
 											}else{	printf("error: wrong in put * before reg\n");
 													return false;
 													}
+									}else if (*((words->word+words->size-1)->str) == '#' ){
+														RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
+														RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
 									}else{	printf("error: unknown operatopr\n");
 											return false;
 											}
