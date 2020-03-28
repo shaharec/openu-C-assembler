@@ -272,22 +272,24 @@ boolean to_many_arg(char **temp, int row_number)
 {
 	boolean flag=false;
 	int comma_counter=0;
-	/*Loop for passing on white charecters*/
+	
+	/*Loop for passing on the row until the end ot semicolon.*/
  	while(**temp!=';' && **temp!='\n' && **temp!='\0')					
    	{
-   		if (**temp==',')
+   		if (**temp==',') /*Will update the comma counter if there is an extra comma.*/
    			comma_counter++;
    			
-   		if (**temp!=' ' && **temp!='\t' && **temp!=',')
+   		if (**temp!=' ' && **temp!='\t' && **temp!=',') /*Will update the flag if it is not a non-white or comma character.*/
    			flag = true;
    			
    		(*temp)++;
    	}
-   	if (flag == false && comma_counter==0)
+   	
+   	if (flag == false && comma_counter==0) /*If there are only white characters by the end of the line or semicolon.*/
    		return true;
       	
-      	/*Print error values in case of an invalid character that came before the end of the line. return false*/
       	
+      	/*Print error values in case of an invalid character that came before the end of the line. return false*/
       	else if (comma_counter>0)
  		fprintf(stdout,"Row %d: Illegal comma.\n", row_number);
       	
