@@ -158,7 +158,7 @@ the function gets the name of the new label, checks if exsist and adds it to the
 boolean addLb(char* label, lbType labelType){
    
 	if(labelExist(label)!=NULL){/*check if label exist*/
-		printf("label %s already defined\n",label);
+		printf("label \" %s \" already defined\n",label);
       		return false;
     	}if (labelT==NULL) {/*if label table is empty*/
 		labelT = malloc(sizeof(labelTable));
