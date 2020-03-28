@@ -243,6 +243,7 @@ void printEnT(void){
 			printf("en label :%s, address: %d\n",(enT->line+i)->label,(enT->line+i)->address);
 }
 
+
 /*free all allocated memory of global variables*/
 void freeMemory(void){
 	/*free RAM*/

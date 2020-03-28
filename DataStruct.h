@@ -106,7 +106,6 @@ void updateDataLabels(int endIC);			/*update the label table for data addresses*
 void updateRAMCounters();				/*update the number of counters in the memory after the firs pass*/
 void freeMemory();					/*free data structers memory*/
 
-
 extern int IC;
 extern int DC;
 extern labelTable* labelT;
