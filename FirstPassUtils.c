@@ -32,7 +32,7 @@ boolean lineFirstPass(char* line, int findex){
           	  							if(labelExist((words->word+words->size-1)->str)!=NULL){/*if label already exsist*/	
             								if(labelp->labelType!=EX_LABEL){/*if the lable type is not external*/
             									error = true;
-            									printf("error diffrent decleration of label : %s in line: %d\n",(words->word+words->size-1)->str,findex);
+            									printf("error diffrent decleration of label : %s \n",(words->word+words->size-1)->str);
             								}
             							}else {
             								error = !addLb((words->word+words->size-1)->str, EX_LABEL);/*add external label*/
@@ -41,7 +41,7 @@ boolean lineFirstPass(char* line, int findex){
             					}
             			}
             				}else {	error = true;
-            						printf("error in syntax line : %d\n", findex);
+            						printf("error in syntax\n");
             						}
 			}else {
 					if(isCmd((words->word+words->size-1)->str)!=-1){/*if its a command*/
@@ -56,14 +56,14 @@ boolean lineFirstPass(char* line, int findex){
           	  							if(labelp!=NULL){/*if label already exsist*/	
             								if(labelp->labelType!= EX_LABEL){/*if the lable type is not external*/
             									error = true;
-            									printf("error diffrent decleration of label : %s in line: %d\n",(words->word+words->size-1)->str,findex);
+            									printf("error diffrent decleration of label : %s \n",(words->word+words->size-1)->str);
             								}
             							}else {
             								error = !addLb((words->word+words->size-1)->str, EX_LABEL);
             								}
             						}
             					}else{ if(strcmp((words->word+words->size-1)->str,ENT_CMD) != 0){
-            							 	printf("unknown word: %s in line: %d",(words->word+words->size-1)->str,findex); 
+            							 	printf("unknown word: %s \n",(words->word+words->size-1)->str); 
             							 error = true; 
             							}
             						}
@@ -72,6 +72,9 @@ boolean lineFirstPass(char* line, int findex){
           	}
 	}
 	freeWords(words);
+	if(error)
+		printf("Row %d: error in row. \n",findex);
+            	
 	return !error;	
 }
 

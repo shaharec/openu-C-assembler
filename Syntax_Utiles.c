@@ -1,5 +1,4 @@
-#include "DataStruct.h"
-#include "Syntax.h"
+#include "Syntax_Utiles.h"
 
 /*Auxiliary functions for Syntax.c file*/
 

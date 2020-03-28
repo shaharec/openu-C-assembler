@@ -25,7 +25,7 @@ boolean lineSecondPass(char* line, int findex){
             							if(getNextWordInLine(line,words))/*get lable after entry*/
             								error = !(addToEnT((words->word+words->size-1)->str));/*add the lable after to enry lable*/
             					}else {	error=true;/*unknown word*/
-            						printf("error: unknown word: %s in line :%d",(words->word+words->size-1)->str,findex);
+            						printf("error: unknown word: %s \n",(words->word+words->size-1)->str);
             						}
             			}
 			}		   
@@ -37,11 +37,13 @@ boolean lineSecondPass(char* line, int findex){
             		if(getNextWordInLine(line,words))/*next word should be a lable*/
             			error = !(addToEnT((words->word+words->size-1)->str));/*add lable to entry table*/
             		}else if(strcmp((words->word+words->size-1)->str,EXT_CMD)!=0){/*not external line*/
-            			printf("unknown word: %s in line: %d",(words->word+words->size-1)->str,findex); 
+            			printf("unknown word: %s",(words->word+words->size-1)->str); 
             			error = true;
             		}
-            	freeWords(words);
            }
+        freeWords(words);
+        if(error)
+		printf("Row %d: error in row.\n",findex);
 	return !error;/*retun no error has occurd in line*/	
 }
 

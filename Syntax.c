@@ -1,4 +1,3 @@
-#include "DataStruct.h"
 #include "Syntax.h"
 
 /*Function*/
@@ -13,7 +12,7 @@ boolean syntax_chack (char *buff, int row_number)
 	int len=0;					/*A numeric variable that holds the length of each word.*/
 	boolean error = true, labled = false;		/*Flags for saving error and label appearances.*/
 	
-	printf("%d.%s", row_number, buff); /*delet*/
+	/*printf("%d.%s", row_number, buff); delet*/
 	
 	/*Find the first character in the next word.*/
 	first_char=buff;

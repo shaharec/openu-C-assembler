@@ -63,7 +63,8 @@ boolean addToMemory(unsigned int data,int *address){
 		(memory->word + memory->size-1)->address = *address;
 		(memory->word + memory->size-1)->data =data;
 		}
-	*address+=1;/*add to memory couner 1(DC or IC)*/	
+	*address+=1;/*add to memory couner 1(DC or IC)*/
+		
 	/*code for checking the labels and binery representation:*//*
 	printf("address:%d  data: %d bin data: ",(memory->word +memory->size-1)->address,data);
 	printBinary((memory->word + memory->size-1)->data);
@@ -126,12 +127,16 @@ boolean addToEnT(char* label){/*add lable to entry table*/
 	
 	return true;
 }
+
+/*input	:char* str:	name of label
+output	:boolean value- check if valid label
+the function gets a string and returns if it is a label*/
 boolean Islabel(char *str){			
     
     int len = strlen(str),i=0;	  
     if(str && *str && (str[len - 1] == ':')){  
      	if (len - 1 > 30) {/*if label not within 30 chars, if yes it will print error but won't compile but will keep parsing*/
-       		printf("more then 30 character for label\n");	 
+       		printf("more then 30 character for label: %s\n",str);	 
       	}    
         for(i=0;i<len-2;i++) {/*in a label it should be only digits or letters, else it will print error but will keep parsing*/
             if(!isalpha(*(str + i)) || (*(str + len) <= '9' && *(str + len) >= '0' )){
@@ -145,18 +150,22 @@ boolean Islabel(char *str){
 }
 
 
-
+/*input	:char *label:	label name to add.
+	 lbType labelType:	label type.
+output:	 boolean value of succsess.
+the function gets the name of the new label, checks if exsist and adds it to the label tabel.
+*/
 boolean addLb(char* label, lbType labelType){
    
-	if(labelExist(label)!=NULL){
-		printf("label exist in table");
+	if(labelExist(label)!=NULL){/*check if label exist*/
+		printf("label %s already defined\n",label);
       		return false;
-    	}if (labelT==NULL) {
+    	}if (labelT==NULL) {/*if label table is empty*/
 		labelT = malloc(sizeof(labelTable));
-		allcERR(labelT);
+		allcERR(labelT);/*check allocation*/
 	        labelT->size = 0;
 	        labelT->labelAd = malloc(sizeof(labelAd));
-	        allcERR(labelT->labelAd);
+	        allcERR(labelT->labelAd);/*check allocation*/
 	}else{
 		labelT->labelAd = realloc(labelT->labelAd,((labelT->size) + 1) *sizeof(labelAd));
 		allcERR(labelT->labelAd);
@@ -302,7 +311,8 @@ void updateRAMCounters(void){
 	if(memory != NULL){
 		memory->instructionC = IC-MEMORY_START;
 		memory->dataC = DC-IC;
-		printf("instructionC: %d dataC: %d\n",memory->instructionC,memory->dataC);
+		/*check printf function- print the values
+		printf("instructionC: %d dataC: %d\n",memory->instructionC,memory->dataC);*/
 	}
 }
 
