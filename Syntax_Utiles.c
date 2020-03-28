@@ -106,7 +106,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 	 		/*Checking whether we have reached the end of the line or a semicolon and an error message is returned.*/
     			if (**first_char == ';' || **first_char == '\n' || **first_char == '\0')
    			{
-  				fprintf(stdout,"Row %d; Argument %d: Missing argument.\n", row_number, op_position+1);
+  				fprintf(stdout,"Row %d - Argument %d: Missing argument.\n", row_number, op_position+1);
     				return false;
     			}
     			
@@ -140,7 +140,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     			
     			if (check_num!=fourAddMet)
     			{
-    				fprintf(stdout,"Row %d; Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
+    				fprintf(stdout,"Row %d - Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
     				Next_last_Char(last_char);/*Promote the last character to the next white character or comma or semicolon or sentence end.*/
     				
     				return false;
@@ -149,7 +149,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     			/*Chack if the Immediate address is properly defined*/
     			if (flag == false) 
     			{
-    				fprintf(stdout,"Row %d; Argument %d: Immediate address is not properly defined.\n", row_number, op_position+1);
+    				fprintf(stdout,"Row %d - Argument %d: Immediate address is not properly defined.\n", row_number, op_position+1);
     				Next_last_Char(last_char);/*Promote the last character to the next white character or comma or semicolon or sentence end.*/
     				
     				return false;
@@ -185,7 +185,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 			/*Check if the value is Register if no appropriate error message is printed and false returned.*/  	
 			if (check_num!=TowAddMet && check_num!=ThreeAddMet && check_num!=fourAddMet)
     			{
-    				fprintf(stdout,"Row %d; Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
+    				fprintf(stdout,"Row %d - Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
     				
     				free(operator);
     				return false;
@@ -193,7 +193,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 			
 			if (isResinger(operator) == false) 
 			{
-			    	fprintf(stdout,"Row %d; Argument %d: Indirect register addressing is not properly defined.\n", row_number, op_position+1);
+			    	fprintf(stdout,"Row %d - Argument %d: Indirect register addressing is not properly defined.\n", row_number, op_position+1);
 			    	free(operator);
 	    			return false;  
 			}
@@ -226,7 +226,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 			/*Check if the value is Register if no appropriate error message is printed and false returned.*/  	
 			if (check_num!=ThreeAddMet && check_num!=fourAddMet)
     			{
-    				fprintf(stdout,"Row %d; Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
+    				fprintf(stdout,"Row %d - Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
     				Next_last_Char(last_char);/*Promote the last character to the next white character or comma or semicolon or sentence end.*/
     				
     				return false;
@@ -242,7 +242,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 		/*Check if the second word is a reserved word*/
 		if (comm_checker>= guid_data && comm_checker <= guid_extern) 
 		{
-			fprintf(stdout,"Row %d; Argument %d: The operator is a reserved word.\n", row_number, op_position+1);
+			fprintf(stdout,"Row %d - Argument %d: The operator is a reserved word.\n", row_number, op_position+1);
 			free(operator);
 			return false;
 		}
@@ -256,7 +256,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 			}
 			
 		/*A case where none of the options are available*/		
-		fprintf(stdout,"Row %d; Argument %d: The operand is not properly configured.\n", row_number, op_position+1);
+		fprintf(stdout,"Row %d - Argument %d: The operand is not properly configured.\n", row_number, op_position+1);
 		free(operator);
 		return false;
 	   			
@@ -293,7 +293,7 @@ boolean to_many_arg(char **temp, int row_number)
  		fprintf(stdout,"Row %d: Illegal comma.\n", row_number);
       	
       	if (flag == true)	
-      		fprintf (stdout,"Row: %d: To many arguments.\n", row_number);
+      		fprintf (stdout,"Row %d: To many arguments.\n", row_number);
       
       	
 		
