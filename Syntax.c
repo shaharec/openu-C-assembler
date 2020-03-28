@@ -184,6 +184,8 @@ boolean syntax_chack (char *buff, int row_number)
     			if ((address_check(&first_char, &last_char, fourAddMet, SECOND, &comma_count, row_number) == false) && (error == true)) 
     				error = false;
 
+			if((to_many_arg(&last_char, row_number)== false) && (error == true))
+    				error = false;
     			break;
     		}
     			

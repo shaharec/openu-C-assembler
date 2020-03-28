@@ -1,0 +1,75 @@
+cmp #48 , #48
+cmp #48 , lable
+cmp #48 , *r3
+cmp #48 ,r0
+cmp lable 	, #48
+cmp lable 	,	lable
+cmp lable 	,	*r3
+cmp lable 	, r0
+cmp *r3       , #48
+cmp *r3       ,		lable
+cmp *r3       , *r3
+cmp *r3       ,r0
+cmp r0     	,#48
+cmp r0     	,  lable
+cmp r0     	,*r3
+cmp r0     	,r0 
+
+mov #48 , #48
+mov #48 , lable
+mov #48 , *r3
+mov #48 ,r0
+mov lable 	, #48
+mov lable 	,	lable
+mov lable 	,	*r3
+mov lable 	, r0
+mov *r3       , #48
+mov *r3       ,		lable
+mov *r3       , *r3
+mov *r3       ,r0
+mov r0     	,#48
+mov r0     	,  lable
+mov r0     	,*r3
+mov r0     	,r0
+
+lea #48 , #48
+lea #48 , lable
+lea #48 , *r3
+lea #48 ,r0
+lea lable 	, #48
+lea lable 	,r0  
+lea lable 	,	*r3
+lea lable 	, r0
+lea *r3       , #48
+lea *r3       ,		lable
+lea *r3       , *r3
+lea *r3       ,r0
+lea r0     	,#48
+lea r0     	,  lable
+lea r0     	,*r3
+lea r0     	,r0  
+
+prn #48
+prn lable
+prn *r3
+prn r0
+
+clr #48
+clr lable
+clr *r3
+clr r0
+
+jmp #48
+jmp lable
+jmp *r3
+jmp r0
+
+.hello: stop 	;hfchfchf
+
+
+.data 2332,424222 , 422424,232535213,-3243423, +2523523
+.string "sfgadfgdfagdfgAD"afgdfagsag"fgasfgAS"FGasfgasfgsFA"GSafgsfgsfg""""""""
+hello: .extern hii
+.extern hii
+hello: .entry hii
+.entry hii

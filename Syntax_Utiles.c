@@ -9,10 +9,13 @@ void Next_First_Char(char **first_char, int *comma_count)
 {	
 	/*Counts if there is a comma*/
 	if(**first_char==',')
+    	{
     		(*comma_count)++;
+    		(*first_char)++;
+    	}
     	
     	/*Loop runs on white characters and stops if you meet non-white or end-of-line character.*/		
-	while((**first_char=='\t' || **first_char==' ') && **first_char!=';' && **first_char!='\n' && **first_char!='\0')
+	while((**first_char=='\t' || **first_char==' ' || **first_char==',') && **first_char!=';' && **first_char!='\n' && **first_char!='\0')
     	{
         	(*first_char)++;
         	
@@ -26,8 +29,8 @@ Output: Will advance the pointer to the end of the word, stop if it has a white 
 void Next_last_Char(char ** last_char)
 {
 	/*If the first character is a comma, the pointer will move forward.*/
-	if (**last_char==',')
-		(*last_char)++;
+	/*if (**last_char==',')
+		(*last_char)++;*/
 	
 	/*Loop runs on white characters and stops if you meet non-white or end-of-line character.*/	
 	while(**last_char!='\t' && **last_char!=' ' && **last_char!=',' && **last_char!=';' && **last_char!='\n' && **last_char!='\0')
@@ -67,6 +70,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     		return false;
     	}
 	  
+	
 	/*If a comma is missing, an error message is printed and a false is returned.*/				
     	if(*comma_count<op_position) /*check if there is comma and stops if there is*/ 
 	{
@@ -110,7 +114,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     		}
     		
     		/*Check if this is an immediate address.*/				    	
-	    	if (**first_char=='#' && check_num==fourAddMet)  
+	    	if (**first_char=='#')  
 	    	{
 			(*first_char)++; 
 			*last_char=*first_char;			
@@ -135,6 +139,14 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     				(*last_char)++;
     			}
     			
+    			if (check_num!=fourAddMet)
+    			{
+    				fprintf(stdout,"Row %d; Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
+    				Next_last_Char(last_char);/*Promote the last character to the next white character or comma or semicolon or sentence end.*/
+    				
+    				return false;
+    			}
+    			
     			/*Chack if the Immediate address is properly defined*/
     			if (flag == false) 
     			{
@@ -150,13 +162,13 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 		}
 			    	
 		/*Check if this is an indirect register addressing.*/	
-		else if ((**first_char=='*') && (check_num==TowAddMet || check_num==ThreeAddMet ||check_num==fourAddMet)) 
+		else if ((**first_char=='*') ) 
 		{	
 	    		(*first_char)++; 
 	    		
 	    		/*Finding the word length and allocate a dynamic memory for a variable.*/
 	    		len=*last_char-*first_char;
-	    		operator = (char *)malloc(len);
+	    		operator = (char *)malloc((sizeof(char))*len);
 	    		
 	    		/*Check if the allocation was done correctly.*/
 	    		if (operator == NULL)
@@ -172,6 +184,14 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 			strncpy(operator, *first_char, len);
 			 
 			/*Check if the value is Register if no appropriate error message is printed and false returned.*/  	
+			if (check_num!=TowAddMet && check_num!=ThreeAddMet && check_num!=fourAddMet)
+    			{
+    				fprintf(stdout,"Row %d; Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
+    				
+    				free(operator);
+    				return false;
+    			}
+			
 			if (isResinger(operator) == false) 
 			{
 			    	fprintf(stdout,"Row %d; Argument %d: Indirect register addressing is not properly defined.\n", row_number, op_position+1);
@@ -202,11 +222,20 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 		
 		
 		/*Check if this is a direct register addressing.*/
-		if (isResinger(operator) == true && (check_num==ThreeAddMet ||check_num==fourAddMet))
-			{
-				free(operator);	
-				return true;
-			}
+		if (isResinger(operator) == true)
+		{
+			/*Check if the value is Register if no appropriate error message is printed and false returned.*/  	
+			if (check_num!=ThreeAddMet && check_num!=fourAddMet)
+    			{
+    				fprintf(stdout,"Row %d; Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
+    				Next_last_Char(last_char);/*Promote the last character to the next white character or comma or semicolon or sentence end.*/
+    				
+    				return false;
+    			}
+			
+			free(operator);	
+			return true;
+		}
 		
 		/*Saving a number representing a operator. Performed using the function "Command_check"*/
 		comm_checker=Command_check(operator);	
@@ -241,21 +270,32 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 Output: Moving on the characters to the end of the line and  return true if they are white spaces or a note. else false.*/
 boolean to_many_arg(char **temp, int row_number)
 {
+	boolean flag=false;
+	int comma_counter=0;
 	/*Loop for passing on white charecters*/
- 	while(**temp==' ' || **temp=='\t')					
+ 	while(**temp!=';' && **temp!='\n' && **temp!='\0')					
+   	{
+   		if (**temp==',')
+   			comma_counter++;
+   			
+   		if (**temp!=' ' && **temp!='\t' && **temp!=',')
+   			flag = true;
+   			
    		(*temp)++;
-   	
-   	/*If the pointer reaches the end of a line or a semicolon, return true .*/		
-	if(**temp==';' || **temp=='\n' || **temp=='\0')
-      		return true;
+   	}
+   	if (flag == false && comma_counter==0)
+   		return true;
       	
       	/*Print error values in case of an invalid character that came before the end of the line. return false*/
-      	else if ((**temp)==',')
+      	
+      	else if (comma_counter>0)
  		fprintf(stdout,"Row %d: Illegal comma.\n", row_number);
-		
-      	else	
+      	
+      	if (flag == true)	
       		fprintf (stdout,"Row: %d: To many arguments.\n", row_number);
-	
+      
+      	
+		
 	return false;
 		
 }
@@ -266,37 +306,26 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 {
 	int len=0, comm_checker;
 	boolean correct_lable = false;
-	char *temp=NULL;
-	
+	char * temp;
+		
 	/*Check if the argument is a valid label and update the flag.*/
 	correct_lable = islable (first_char, last_char, row_number);
 	
 	/*If the word is not a label, we will move the pointer to the last character at the end of the word.*/
 	if (correct_lable == false)
+	{
+		*last_char=*first_char;
 		Next_last_Char(last_char);
+	}
 		
-	temp = *last_char; /*We will temporarily save the pointer value to the last character.*/
-	
-	/*We will promote the temporary pointer to run across the line to find a non-white character.*/
-	while((*temp=='\t' || *temp==' ') && *temp!=':' &&  *temp!='\n' && *temp!='\0')
-    		temp++;
-    	
-    		
-    	if(*temp==':') /*Check to see if the character we are standing on with the pointer is a dots that describes a valid tag definition*/
-    	{
-    		temp++;	
-    		(*colon_count)++;
-    	}
-    	
     	/*Placing a string in the "command" array.*/
     	len=*last_char-*first_char;
     	strncpy(command, *first_char, len);
     	
     	/*Saving a number representing a command. Performed using the function "Command_check"*/
     	comm_checker=Command_check(command);
+    
     	
-    	
-    	*last_char = temp; /*Update the pointer that points to the last character of the temporary pointer*/
     	
     	/*Check if the "command" string is a language-defined executable. Returns false without error message*/
     	
@@ -304,33 +333,45 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
     	if ((comm_checker>= com_mov) && (comm_checker <= guid_extern))
     	{
     		/*Prints an error if set to label*/
-    		if (*((*last_char)-1) ==':' && (*colon_count==1)) 
+    		if (**last_char ==':' && (*colon_count==1)) 
     			fprintf(stdout,"Row %d: Laibel is a reserv word.\n", row_number);
 
     		return false;
     	}
     	
+    	if (correct_lable==true)
+    	{
+    		temp=*last_char;
+    		
+	    	if (**last_char == ':')
+	    	{
+	    		temp++; /*.*/
+	    		if (*temp!='\t' && *temp!=' ' && *temp!=';' &&  *temp!='\n' && *temp!='\0')
+	    		{
+	    			correct_lable=false; 
+	    			Next_last_Char(&temp);
+	    		}
+	    	}
+	    		
+	    	else
+	    	{
+	    		correct_lable=false;
+	    		Next_last_Char(&temp);
+	    	}	
+    		
+    		*last_char = temp;
+    	}
+    	
     	
     	/*Check if a label is set up correctly.*/
 	if(correct_lable==true)
-    	{	
-    		/*Returns true if set to label properly.*/
-    		if (*((*last_char)-1) ==':' && *colon_count==1)
     			return true;
-        	
-        	/*Prints an error if  not set to label properly.*/	
-    		else
-    		{
-    			fprintf(stdout,"Row %d: Laibel is not properly define.\n", row_number);
-    			return false;
-		}
-    	}
     	
     	/*Check if a label is not set up correctly. return false and prints error.*/
     	else
     	{
     		fprintf(stdout,"Row %d: Laibel is not properly define.\n", row_number);
-    			return false;
+    		return false;
     	}
 }
 
@@ -482,7 +523,7 @@ boolean next_num (char **first_char, char **last_char,int * comma_count, int row
 	
 	else /*If there is a value other than a valid number, an error message will be printed and a false will be returned.*/
 	{
-		fprintf(stdout,"Row %d: Illegal symbol.\n", row_number);
+		fprintf(stdout,"Row %d: Immediate address is not properly defined.\n", row_number);
     		return false;
 	}		
 }
@@ -519,11 +560,6 @@ boolean isNum (char **temp, int row_number)
 	
 	/*We will run until the next comma / semicolon / end line.*/
 	while(**temp != ',' && **temp != ';' && **temp != '\n' && **temp != '\0') (*temp)++;
-	
-	
-	/*The flag displays a false error message.*/
-	if (!flag)
-		fprintf(stdout,"Row %d: Immediate address is not properly defined.\n", row_number);
 	
 	return flag;
 }
