@@ -156,7 +156,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 	    		
 	    		/*Finding the word length and allocate a dynamic memory for a variable.*/
 	    		len=*last_char-*first_char;
-	    		operator = (char *)malloc((sizeof(char))*len);
+	    		operator = (char *)malloc(len);
 	    		
 	    		/*Check if the allocation was done correctly.*/
 	    		if (operator == NULL)

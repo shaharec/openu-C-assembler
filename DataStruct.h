@@ -1,3 +1,7 @@
+
+#ifndef DATA_STRUCT_H
+#define DATA_STRUCT_H
+
 /*specify data sturcurs for the assembler*/
 #include <stdio.h>
 #include <string.h>
@@ -92,10 +96,6 @@ int isCmd(char *str);					/*check if the string is a command*/
 labelAd* labelExist(char *label);			/*check if the label already exsist in the label table*/
 boolean addToMemory(unsigned int data,int *address);	/*add word to to memory*/
 void printLbTable(void);				/*print labels table*/
-int isReg(char *str);					/*check if str is register*/
-int getDirectWord(char *num);				/*return RAM word of direct value*/
-int getLabelWord(labelAd* label);			/*return RAM word of label value*/
-int getRegWord(int reg,int offset);			/*return RAM word of register value with the offset*/
 void printBinary(unsigned x);				/*prints binery number*/
 boolean addToExT(char* label,int address);		/*add to exteral calls table*/
 boolean addToEnT(char* label);				/*add to enternal table*/
@@ -115,4 +115,6 @@ extern char reg[REG_NUM][REG_NAME_LEN];
 extern RAM *memory;
 extern exTable* exT;
 extern enTable* enT;
+
+#endif /* defined(DATA_STRUCT_H) */
 

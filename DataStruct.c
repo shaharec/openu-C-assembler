@@ -212,55 +212,6 @@ void printLbTable(void){
 		printf("label: %s address: %d label type: %d\n",(labelT->labelAd + i)->label,(labelT->labelAd + i)->address,(labelT->labelAd + i)->labelType);
 }
 
-/*input : char *str
-output	: int value : value of a information word of label value word
-the function get label and returns the RAM information word */
-int isReg(char *str){
-	
-	int i=0;
-	for(i=0;i<REG_NUM;i++){
-		if(strcmp(reg[i],str) == 0)
-			return i;
-		}
-	return -1;
-}
-
-/*input : int reg : the number of the register
-	  int offsett : offset of the reg value in the new information word
-output	: int value : value of a information word of register  word
-the function get label and returns the RAM information word */
-int getRegWord(int reg,int offset){
-	
-	unsigned int word=0;
-	word|= reg<<offset;/*allocate the register in the offset bit place*/
-	word|=A_THREE;/*turn on the A bit from ARE*/
-	return word;
-}
-
-/*input : labelAd* label : label to get information word from
-output	: int value : value of a information word of label value word
-the function get label and returns the RAM information word */
-int getLabelWord(labelAd* label){
-	
-	unsigned int word=0;
-	word|=((label->address)<<EO_ARE);/*label address in left 12 bits*/
-	if(label->labelType==EX_LABEL)
-		word|=A_ONE;/*turn on the R bit from ARE*/
-	else	word|=A_TWO;/*turn on the E bit from ARE*/
-	return word;
-}
-
-/*input : char* num : a string that contain number
-output	: int value : value of a information word of direct value word
-the function get string num and returns the RAM information word */
-int getDirectWord(char *num){
-	
-	unsigned int word=0;
-	word|=(atoi(num+1)<<EO_ARE);/*move the value to the last 12 bits*/
-	word|=A_THREE;/*turn on the A bit from ARE*/
-	return word; 
-}
-
 /*input	: unsigned x: number x should represente a word in RAM
 print binery representation of X number
 this function is for checking the program works*/

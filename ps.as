@@ -2,8 +2,9 @@
 ;aaaaa
 hello:	.entry LIST
 	.extern    fn1
-hello:    add  	r3, , LIST;sada
+hello:    add  	r3, LIST;sada
 jsr   fn1
+add #3,#3
 LOOP:		prn  #48
 lea STR , r6
 inc   r6
@@ -17,7 +18,7 @@ sub L3 ,  L3
 	.entry MAIN
 jmp  LOOP
 END:  		stop
-STR:		.string  "abcd" " asdfasdfasd'sdfsdfas";d"sadsadsa
+STR:		.string  "abcd" " asdfasdfasd'sdfsdfas";
 LIST:		.data   6 ,  -9 ,  13
 	.data   -100
 K:		.data  31
