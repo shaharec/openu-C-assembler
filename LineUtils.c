@@ -21,7 +21,6 @@ boolean getword(lineWords *words){
 			s=line;
 			if(((words->size)==1) || (strcmp((words->word+words->size-2)->str,STR_CMD)!=0)){/*if NOT a string*/
 				while(*line != '\t' && *line != ' ' && *line != ';' && *line != '\n' && *line !='\0' && *line != ',') line++;
-				
 			}else{	if(*line == '\"'){/*if its a string*/
 						line = s+strlen(s)-1;
 						while(*line != '\"') line--;
@@ -34,7 +33,7 @@ boolean getword(lineWords *words){
 		 }else line++;
 	}
 	if(find){/*creat word*/
-		(words->word+words->size-1)->str = (char*)malloc(sizeof(char)*(e-s));
+		(words->word+words->size-1)->str = (char*)malloc(sizeof(char)*(e-s+1));
 		allcERR((words->word+words->size-1)->str);  
 		(words->word+words->size-1)->end = e;
 		while(s!=e){
