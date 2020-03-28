@@ -11,7 +11,7 @@ boolean prossesAsm(const char* fileName)
 	DC=0;	/*counter for label place init 0 place*/
 	fp = fopen(fileName, "r");
     	if (fp == NULL){
-        	printf("%s No such file\n",fileName);
+        	fprintf(stdout,"%s No such file\n",fileName);
         	return false;}
         else{
 		if(firstPass(fp))

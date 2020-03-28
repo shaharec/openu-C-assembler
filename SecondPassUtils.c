@@ -7,10 +7,10 @@ and preform syntax check of the file and first pass of the assembler.
 if an error hase occured retrun false else true*/
 boolean lineSecondPass(char* line, int findex){
 	
-	lineWords *words = NULL;/*a pointer to a structer that contain the words in array*/
-	boolean notEmpty,error=false;
-	words = malloc(sizeof(lineWords));
-	allcERR(words);     	
+	lineWords *words = NULL;		/*a pointer to a structer that contain the words in array*/
+	boolean notEmpty,error=false;		/*boolean variables for enpty row and error*/
+	words = malloc(sizeof(lineWords));	/*allocate memory for words structer*/
+	allcERR(words);/*check allocation success*/
 	words->size = 0;/*find first word in line*/
     notEmpty = getNextWordInLine(line,words);/*check if the line is not empty, if not save first word to fword*/
     if(notEmpty){/*if the row isnt emty (contain ' ' or tab only)*/
@@ -25,7 +25,7 @@ boolean lineSecondPass(char* line, int findex){
             							if(getNextWordInLine(line,words))/*get lable after entry*/
             								error = !(addToEnT((words->word+words->size-1)->str));/*add the lable after to enry lable*/
             					}else {	error=true;/*unknown word*/
-            						printf("error: unknown word: %s \n",(words->word+words->size-1)->str);
+            						fprintf(stdout,"error: unknown word: %s \n",(words->word+words->size-1)->str);
             						}
             			}
 			}		   
@@ -37,13 +37,13 @@ boolean lineSecondPass(char* line, int findex){
             		if(getNextWordInLine(line,words))/*next word should be a lable*/
             			error = !(addToEnT((words->word+words->size-1)->str));/*add lable to entry table*/
             		}else if(strcmp((words->word+words->size-1)->str,EXT_CMD)!=0){/*not external line*/
-            			printf("unknown word: %s",(words->word+words->size-1)->str); 
+            			fprintf(stdout,"unknown word: %s",(words->word+words->size-1)->str); 
             			error = true;
             		}
            }
         freeWords(words);
         if(error)
-		printf("Row %d: error in row.\n",findex);
+		fprintf(stdout,"Row %d: error in row.\n",findex);
 	return !error;/*retun no error has occurd in line*/	
 }
 
@@ -60,7 +60,7 @@ boolean handleRAMWords(lnType lineType,char *line,lineWords *words){
 		return InstRAMWords(line,words);
 	else if(lineType==DATA)
 		return DataRAMWords(line,words);
-	printf("only handle data or instruction RAM words\n");
+	fprintf(stdout,"only handle data or instruction RAM words\n");
 	return false;
 		
 }
@@ -80,131 +80,131 @@ boolean InstRAMWords(char *line,lineWords *words){
        	if(getNextWordInLine(line,words)){/*if there is a next word in line*/
       		switch (*((words->word+words->size-1)->str))/*check the firs cher of operand*/
 			{
-				case '#':
+				case '#':/*direct operand*/
 				RAMWord[1]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
 				numWords++;/*add information word*/
-				if(getNextWordInLine(line,words)){
+				if(getNextWordInLine(line,words)){/*check if second operand exist*/
 					RAMWord[0]|=(A_ONE<<FOAM_SBIT);/*adress methode of the first operand*/
 					numWords++;/*add second operand information word*/
 					label=labelExist((words->word+words->size-1)->str);/*check if second operand is label*/
 					if(label!=NULL){/*if the second operand is a label*/
-						RAMWord[0]|=(A_TWO<<SOAM_SBIT);
-						RAMWord[2]=getLabelWord(label);
+						RAMWord[0]|=(A_TWO<<SOAM_SBIT);/*add addressing methode for second operand*/
+						RAMWord[2]=getLabelWord(label);/*get second operand information words*/
 						if(label->labelType==EX_LABEL)
-							addToExT(label->label,IC+numWords-1);
-					}else {	reg = isReg((words->word+words->size-1)->str);
-							if(reg!=-1){
-								RAMWord[0]|=(A_FOUR<<SOAM_SBIT);
-								RAMWord[2] = getRegWord(reg,SOAM_SBIT);
+							addToExT(label->label,IC+numWords-1);/*add to .ext structur*/
+					}else {	reg = isReg((words->word+words->size-1)->str);/*check if register*/
+							if(reg!=-1){/*if register*/
+								RAMWord[0]|=(A_FOUR<<SOAM_SBIT);/*set addressing method*/
+								RAMWord[2] = getRegWord(reg,SOAM_SBIT);/*get second information word*/
 							}else if(*((words->word+words->size-1)->str)=='*'){
-									reg = isReg((words->word+words->size-1)->str+1);
+									reg = isReg((words->word+words->size-1)->str+1);/*check if * register*/
 									if(reg!=-1){
-											RAMWord[0]|=(A_THREE<<SOAM_SBIT);
-											RAMWord[2] = getRegWord(reg,SOR_SBIT);
-									}else{ 	printf("error: wrong input * before reg\n");
+											RAMWord[0]|=(A_THREE<<SOAM_SBIT);/*set addressing method*/
+											RAMWord[2] = getRegWord(reg,SOR_SBIT);/*get second information word*/
+									}else{ 	fprintf(stdout,"error: wrong input * before reg\n");
 											return false;
 										}
-							}else if (*((words->word+words->size-1)->str) == '#' ){
+							}else if (*((words->word+words->size-1)->str) == '#' ){/*if seond operand is direct word*/
 								RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
 								RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
-								}else{	printf("error: %s unknown operator\n",(words->word+words->size-1)->str);
+								}else{	fprintf(stdout,"error: %s unknown operator\n",(words->word+words->size-1)->str);
 									return false;
 									}
 						}
-				}else RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in second operand bit*/
+				}else RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*if no second operand exsist set first operand to destanation addressing method*/
 				break;
 				
-				case 'r':
+				case 'r':/*can be register or label*/
 				numWords++;
 				reg = isReg((words->word+words->size-1)->str);
 				if(reg!=-1){/*check if its a register*/
-					RAMWord[1] = getRegWord(reg,FOR_SBIT);	
+					RAMWord[1] = getRegWord(reg,FOR_SBIT);/*additional information word for first operand register*/	
 				}else {
 					label=labelExist((words->word+words->size-1)->str);/*check if secind operand is label*/
 					if(label!=NULL){/*check if its a label*/
 						RAMWord[1]=getLabelWord(label);
-						if(label->labelType==EX_LABEL)
+						if(label->labelType==EX_LABEL)/*if external label add to external call table*/
 							addToExT(label->label,IC+numWords-1);	
-					}else {	printf("error: unknown operand\n");
+					}else {	fprintf(stdout,"error: unknown operand\n");
 							return false;
 							}
 				}			
-				if(getNextWordInLine(line,words)){
+				if(getNextWordInLine(line,words)){/*check if second operand exist*/
 					if(reg != -1)
-						RAMWord[0]|=(A_FOUR<<FOAM_SBIT);
+						RAMWord[0]|=(A_FOUR<<FOAM_SBIT);/*set addressing method in command word*/
 					else if(label!=NULL)
-						RAMWord[0]|=(A_TWO<<FOAM_SBIT);	
+						RAMWord[0]|=(A_TWO<<FOAM_SBIT);/*set addressing method in command word*/	
 					if(*((words->word+words->size-1)->str)=='#'){
 						RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
 						RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the word for # operand*/
-						numWords++;
+						numWords++;/*add information word*/
 					}else{	
 							reg = isReg((words->word+words->size-1)->str);
 							if(reg!=-1){
 								RAMWord[0] |= (A_FOUR<<SOAM_SBIT);
 								if(label == NULL)/*if the first operand was register*/ 
 										RAMWord[1] |= getRegWord(reg,SOR_SBIT);
-								else {
+								else {/*add regidter word*/
 										RAMWord[2] = getRegWord(reg,SOR_SBIT);
 										numWords++;
 									}
 							
 								}else {
-										if(*((words->word+words->size-1)->str)=='*'){
+										if(*((words->word+words->size-1)->str)=='*'){/*if second operand * register*/
 											reg = isReg((words->word+words->size-1)->str+1);
-											if(reg!=-1){
+											if(reg!=-1){/*add addressing method and to existing information word*/
 												RAMWord[0] |=(A_THREE<<SOAM_SBIT);
 												RAMWord[1] |= getRegWord(reg,SOR_SBIT);
-											}else{ 	printf("error: wrong in put * before reg\n");
+											}else{ 	fprintf(stdout,"error: wrong in put * before reg\n");
 													return false;
 													}
-										}else{ 
+										}else{/*not *register or register*/ 
 												label=labelExist((words->word+words->size-1)->str);/*check if second operand is label*/
-												if(label!=NULL){
+												if(label!=NULL){/*add sddressing method for second operand and get second information word*/
 													RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 													RAMWord[2] = getLabelWord(label);
-													numWords++;
+													numWords++;/*add information word*/
 													if(label->labelType==EX_LABEL)
 														addToExT(label->label,IC+numWords);
-												}else if (*((words->word+words->size-1)->str) == '#' ){
+												}else if (*((words->word+words->size-1)->str) == '#' ){/*check if second operand is direct word*/
 																RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
 																RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
-												}else {printf("error: unknown operand\n");
+												}else {fprintf(stdout,"error: unknown operand\n");
 																return false;
 															}
 											}
 										}
 									}
-								}else{	if(reg != -1){
-										RAMWord[0]|=(A_FOUR<<SOAM_SBIT);
-										RAMWord[1] = getRegWord(reg,SOR_SBIT);
+								}else{	if(reg != -1){/*if only one operand*/
+										RAMWord[0]|=(A_FOUR<<SOAM_SBIT);/*update first word*/
+										RAMWord[1] = getRegWord(reg,SOR_SBIT);/*change information word*/
 									}else if(label!=NULL)
-										RAMWord[0]|=(A_TWO<<SOAM_SBIT);
+										RAMWord[0]|=(A_TWO<<SOAM_SBIT);/*update first word*/
 									} 
 						
 				break;
 			
 				case '*':/*type of operanf *register*/
 				reg = isReg((words->word+words->size-1)->str+1);
-				if(reg!=-1){
-					RAMWord[1] = getRegWord(reg,FOR_SBIT);
+				if(reg!=-1){/*check if * register*/
+					RAMWord[1] = getRegWord(reg,FOR_SBIT);/*update first information word*/
 					numWords++;
-					if(getNextWordInLine(line,words)){
-						RAMWord[0]|=(A_THREE<<FOAM_SBIT);
+					if(getNextWordInLine(line,words)){/*check for second operand*/
+						RAMWord[0]|=(A_THREE<<FOAM_SBIT);/*update addressing method*/
 						if(*((words->word+words->size-1)->str)=='#'){
-							RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
+							RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*update addresing method*/
 							RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the word for # operand*/
-							numWords++;
+							numWords++;/*add information word*/
 						}else{
 								label=labelExist((words->word+words->size-1)->str);/*check if secind operand is label*/
-								if(label!=NULL){
+								if(label!=NULL){/*if label update instruction word addressing method and get second information word*/
 									RAMWord[0]|=(A_TWO<<SOAM_SBIT);
 									RAMWord[2] = getLabelWord(label);
 									numWords++;
-									if(label->labelType==EX_LABEL)
+									if(label->labelType==EX_LABEL)/*if external label add to wxternal call table*/
 										addToExT(label->label,IC+numWords-1);
 								}else {	reg = isReg((words->word+words->size-1)->str);
-									if(reg!=-1){
+									if(reg!=-1){/*check if register and update instruction word and first operand information word*/
 										RAMWord[0] |= (A_FOUR<<SOAM_SBIT);
 										RAMWord[1] = getRegWord(reg,SOR_SBIT);
 									}else if(*((words->word+words->size-1)->str)=='*'){
@@ -212,74 +212,74 @@ boolean InstRAMWords(char *line,lineWords *words){
 										if(reg!=-1){
 											RAMWord[0] |= (A_THREE<<SOAM_SBIT);
 											RAMWord[1] = getRegWord(reg,SOR_SBIT);
-										}else{ 	printf("error: wrong in put * before reg\n");
+										}else{ 	fprintf(stdout,"error: wrong in put * before reg\n");
 												return false;
 												}
 									}else if (*((words->word+words->size-1)->str) == '#' ){/*check direct numnber*/
 														RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
 														RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
-								}else{ 	printf("error: unknown operatopr\n");
+								}else{ 	fprintf(stdout,"error: unknown operatopr\n");
 											return false;
 											}
 								}
 							}
-						}else {	RAMWord[0]|=(A_THREE<<SOAM_SBIT);
-							RAMWord[1] = getRegWord(reg,SOR_SBIT);
+						}else {	RAMWord[0]|=(A_THREE<<SOAM_SBIT);/*if no second operand update addressing method and register information word*/
+										RAMWord[1] = getRegWord(reg,SOR_SBIT);
 							}
-					}else{ 	printf("error: wrong in put * before reg\n");
+					}else{ 	fprintf(stdout,"error: wrong in put * before reg\n");
 							return false;
 							}
 				break;
 				
 				default:/*first operand is a label*/
 				label=labelExist((words->word+words->size-1)->str);/*check if second operand is label*/
-				if(label!=NULL){
+				if(label!=NULL){/*if label update extra information word*/
 					RAMWord[1] = getLabelWord(label);
 					numWords++;
-					if(label->labelType==EX_LABEL)
+					if(label->labelType==EX_LABEL)/*update external call tabel*/
 							addToExT(label->label,IC+numWords-1);
-					if(getNextWordInLine(line,words)){
-						RAMWord[0] |= (A_TWO<<FOAM_SBIT);
+					if(getNextWordInLine(line,words)){/*check if second operand exist*/
+						RAMWord[0] |= (A_TWO<<FOAM_SBIT);/*update instruction word addressing method*/
 						numWords++;
 						if(*((words->word+words->size-1)->str)=='#'){
 							RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode 0 place in 3 bit*/
 							RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the word for # operand*/
 						}else{
-							label=labelExist((words->word+words->size-1)->str);/*check if secind operand is label*/
-							if(label!=NULL){
-								RAMWord[0] |= (A_TWO<<SOAM_SBIT);
-								RAMWord[2] = getLabelWord(label);
-								if(label->labelType==EX_LABEL)
+							label=labelExist((words->word+words->size-1)->str);/*check if second operand is label*/
+							if(label!=NULL){/*check if second operand is label*/
+								RAMWord[0] |= (A_TWO<<SOAM_SBIT);/*update instruction word addressing method*/
+								RAMWord[2] = getLabelWord(label);/*update second information word*/
+								if(label->labelType==EX_LABEL)/*update external label calls*/
 									addToExT(label->label,IC+numWords-1);
 							}else{	reg = isReg((words->word+words->size-1)->str);
-									if(reg!=-1){
+									if(reg!=-1){/*check if second operand is label*/
 										RAMWord[0] |= (A_FOUR<<SOAM_SBIT);
 										RAMWord[2] = getRegWord(reg,3);
 									}else if(*((words->word+words->size-1)->str)=='*'){
 											reg = isReg((words->word+words->size-1)->str+1);
-											if(reg!=-1){
+											if(reg!=-1){/*check if second operand is * register*/
 												RAMWord[0] |= (A_THREE<<SOAM_SBIT);
 												RAMWord[2] = getRegWord(reg,3);
-											}else{	printf("error: wrong in put * before reg\n");
+											}else{	fprintf(stdout,"error: wrong in put * before reg\n");
 													return false;
 													}
-									}else if (*((words->word+words->size-1)->str) == '#' ){
+									}else if (*((words->word+words->size-1)->str) == '#' ){/*check if direct word*/
 														RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
 														RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
-									}else{	printf("error: unknown operatopr\n");
+									}else{	fprintf(stdout,"error: unknown operatopr\n");
 											return false;
 											}
 							}
 						}
-					}else RAMWord[0] |= (A_TWO<<SOAM_SBIT);	
-				}else{ 	printf("error: unknown operand\n");
+					}else RAMWord[0] |= (A_TWO<<SOAM_SBIT);/*if no second operand*/	
+				}else{ 	fprintf(stdout,"error: unknown operand\n");
 						return false;
 						}
 						
 			}
 			
 		}
-		for(i=0;i<numWords;i++){
+		for(i=0;i<numWords;i++){/*add words to RAM memory and update IC*/
 			addToMemory(RAMWord[i],&IC);
 		}
 		return true;

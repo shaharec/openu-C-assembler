@@ -54,7 +54,7 @@ boolean addToMemory(unsigned int data,int *address){
 		memory->word->address = *address;
 		memory->word->data = data;
 	}else	if(memory->size==RAM_MAX_SIZE){/*check the number of words in the memory*/
-			printf("not enogth ram memory: over %d RAM words",RAM_MAX_SIZE);
+			fprintf(stdout,"not enogth ram memory: over %d RAM words",RAM_MAX_SIZE);
 			return false;
 	}else	{/*allocate new words in the memory*/
 		memory->size++;
@@ -106,12 +106,12 @@ boolean addToEnT(char* label){/*add lable to entry table*/
 		
 	labelAd* labelAd=labelExist(label);/*find lable address in lable table*/
 	if(labelAd==NULL){/*if label doesnt exist*/
-		printf("entry label does not exsist: %s\n",label);
+		fprintf(stdout,"entry label does not exsist: %s\n",label);
 		return false;
 	}else if(enT == NULL){
 		
 		enT = (enTable*)malloc(sizeof(enTable));
-		allcERR(enT);
+		allcERR(enT);/*check allocation success*/
 		enT->size = 1;
 		enT->line = (entryLine*) malloc(sizeof(entryLine));
 		allcERR(enT->line);
@@ -136,11 +136,11 @@ boolean Islabel(char *str){
     int len = strlen(str),i=0;	  
     if(str && *str && (str[len - 1] == ':')){  
      	if (len - 1 > 30) {/*if label not within 30 chars, if yes it will print error but won't compile but will keep parsing*/
-       		printf("more then 30 character for label: %s\n",str);	 
+       		fprintf(stdout,"more then 30 character for label: %s\n",str);	 
       	}    
         for(i=0;i<len-2;i++) {/*in a label it should be only digits or letters, else it will print error but will keep parsing*/
             if(!isalpha(*(str + i)) || (*(str + len) <= '9' && *(str + len) >= '0' )){
-                printf("invalid label\n");
+                fprintf(stdout,"invalid label\n");
                 return false;
             }
          }
@@ -158,7 +158,7 @@ the function gets the name of the new label, checks if exsist and adds it to the
 boolean addLb(char* label, lbType labelType){
    
 	if(labelExist(label)!=NULL){/*check if label exist*/
-		printf("label \" %s \" already defined\n",label);
+		fprintf(stdout,"label \" %s \" already defined\n",label);
       		return false;
     	}if (labelT==NULL) {/*if label table is empty*/
 		labelT = malloc(sizeof(labelTable));

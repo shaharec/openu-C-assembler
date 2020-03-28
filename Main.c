@@ -9,7 +9,7 @@ int main(int argc, char * argv[]){
 	char *fileName=NULL;
 	/**char* asFile; = malloc((strlen(fileName) + strlen(".as") + 1)*sizeof(char));*/
 	if(argc==1)
-		printf("no file recived\n");
+		fprintf(stdout,"no file recived\n");
 	else{
 		for(i=1;i<argc;i++){/*for every file entered*/
 			fileName = malloc((strlen(argv[i]) + strlen(".as") + 1)*sizeof(char));
@@ -73,7 +73,7 @@ void writeFiles(char* fileName){
 	}
 
 
-	printf("**********File %s.as has been successfully compiled.**********\n\n", fileName);
+	fprintf(stdout,"**********File %s.as has been successfully compiled.**********\n\n", fileName);
 	free(objFileN);
 	free(extFileN);
 	free(entFileN);

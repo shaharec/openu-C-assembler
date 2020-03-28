@@ -5,13 +5,13 @@
 output	:boolean value of success or failier of first pass */
 boolean lineFirstPass(char* line, int findex){
    
-        lineWords *words = NULL;/*lineWords pointer to structure*/
-        char label[LB_NAME_SIZE];/*label name*/
-        boolean notEmpty,error = false;
-        labelAd *labelp = NULL;/*pointer to lable*/
-		words = malloc(sizeof(lineWords));
-		allcERR(words);
-		words->size=0;     	
+        lineWords *words = NULL;		/*lineWords pointer to structure*/
+        char label[LB_NAME_SIZE];		/*label name*/
+        boolean notEmpty,error = false;		/*boolean value for empty row and error*/
+        labelAd *labelp = NULL;			/*pointer to lable*/
+	words = malloc(sizeof(lineWords));	
+	allcERR(words);
+	words->size=0;     	
         notEmpty = getNextWordInLine(line,words);/*check if the line is not empty, if not save first word to fword*/
         if(notEmpty){/*if the row isnt emty (contain ' ' or tab only)*/
         	if(Islabel(((words->word+words->size-1)->str))){/*if it's label*/	
@@ -30,9 +30,9 @@ boolean lineFirstPass(char* line, int findex){
             				}else if(strcmp(((words->word+words->size-1)->str),EXT_CMD) == 0){/*external line*/
           	  						if(getNextWordInLine(line,words)){
           	  							if(labelExist((words->word+words->size-1)->str)!=NULL){/*if label already exsist*/	
-            								if(labelp->labelType!=EX_LABEL){/*if the lable type is not external*/
-            									error = true;
-            									printf("error diffrent decleration of label : %s \n",(words->word+words->size-1)->str);
+            									if(labelp->labelType!=EX_LABEL){/*if the lable type is not external*/
+            										error = true;
+            										fprintf(stdout,"error diffrent decleration of label : %s \n",(words->word+words->size-1)->str);	
             								}
             							}else {
             								error = !addLb((words->word+words->size-1)->str, EX_LABEL);/*add external label*/
@@ -41,7 +41,7 @@ boolean lineFirstPass(char* line, int findex){
             					}
             			}
             				}else {	error = true;
-            						printf("error in syntax\n");
+            						fprintf(stdout,"error in syntax\n");
             						}
 			}else {
 					if(isCmd((words->word+words->size-1)->str)!=-1){/*if its a command*/
@@ -51,19 +51,19 @@ boolean lineFirstPass(char* line, int findex){
            						error = !handleIC(DATA,line,words);
             			}else{ 	
             					if(strcmp(((words->word+words->size-1)->str),EXT_CMD) == 0){/*external line*/
-          	  						if(getNextWordInLine(line,words)){
+          	  						if(getNextWordInLine(line,words)){/*check the lable of the external line*/
           	  							labelp = labelExist((words->word+words->size-1)->str);
           	  							if(labelp!=NULL){/*if label already exsist*/	
-            								if(labelp->labelType!= EX_LABEL){/*if the lable type is not external*/
-            									error = true;
-            									printf("error diffrent decleration of label : %s \n",(words->word+words->size-1)->str);
-            								}
+            									if(labelp->labelType!= EX_LABEL){/*if the lable type is not external and exist in lable table*/
+            										error = true;
+            										fprintf(stdout,"error diffrent decleration of label : %s \n",(words->word+words->size-1)->str);
+            								}	
             							}else {
             								error = !addLb((words->word+words->size-1)->str, EX_LABEL);
             								}
             						}
-            					}else{ if(strcmp((words->word+words->size-1)->str,ENT_CMD) != 0){
-            							 	printf("unknown word: %s \n",(words->word+words->size-1)->str); 
+            					}else{ if(strcmp((words->word+words->size-1)->str,ENT_CMD) != 0){/*undeifined commend should not happen*/
+            							 	fprintf(stdout,"unknown word: %s \n",(words->word+words->size-1)->str); 
             							 error = true; 
             							}
             						}
@@ -71,9 +71,9 @@ boolean lineFirstPass(char* line, int findex){
 				}         
           	}
 	}
-	freeWords(words);
+	freeWords(words);/*free words allocation*/
 	if(error)
-		printf("Row %d: error in row. \n",findex);
+		fprintf(stdout,"Row %d: error in row. \n",findex);
             	
 	return !error;	
 }
@@ -86,19 +86,19 @@ boolean lineFirstPass(char* line, int findex){
 handle insruction counter by the type of label
 (INST = 'add','move...,DATA =.string "asf",.data 120,2, EXTERN = .extern)*/	
 boolean handleIC(lnType lineType,char *line,lineWords *words){
-	boolean error = false;
+	boolean error = false;		/*error boolean*/
 	if(lineType == INST){
 		IC++;/*instruction word*/
 		if(getNextWordInLine(line,words)){
-			IC++;/*extra information for first operand*/
+			IC++;	/*extra information for first operand*/
 			switch (*((words->word+words->size-1)->str))
 				{
-					case '#':
+					case '#':/*if first operand is direct number*/
 					if(getNextWordInLine(line,words))
 						IC++;
 					break;
 					
-					case 'r':
+					case 'r':/*if the first operand starts with r can be register or label*/
 					if((isReg((words->word+words->size-1)->str)!=-1)){
 						if(getNextWordInLine(line,words)){
 							if(!((isReg((words->word+words->size-1)->str)!=-1)||(((*((words->word+words->size-1)->str))=='*') && isReg((words->word+words->size-1)->str+1)))){/*check if the seconde word its not a register or a reference to reg (*r3 for exemple)*/
@@ -110,28 +110,28 @@ boolean handleIC(lnType lineType,char *line,lineWords *words){
 						
 					break;
 					
-					case '*':
+					case '*':/*should be *register name*/
 					if(getNextWordInLine(line,words))
-						if((*((words->word+words->size-1)->str) != '*') && (isReg((words->word+words->size-1)->str) ==-1))/*check if second operand is register*/
+						if((*((words->word+words->size-1)->str) != '*') && (isReg((words->word+words->size-1)->str) ==-1))/*check if second operand is not register*/
 							IC++;
 					break;
 					
-					default:
-					if(getNextWordInLine(line,words))
+					default:/*first operand is lable*/
+					if(getNextWordInLine(line,words))/*if second operand exist*/
 						IC++;
 				}
 			}
-	}else if(lineType == DATA){
+	}else if(lineType == DATA){/*.data of ,string in the line*/
 		if(strcmp((words->word+words->size-1)->str,DATA_CMD)==0){
             while(getNextWordInLine(line,words)){/*while there are stil variables*/
-            		DC++;
+            		DC++;/*update data counter*/
             }
       	}else if(strcmp((words->word+words->size-1)->str,STR_CMD)==0){ 
             	if(getNextWordInLine(line,words)){
 		      		if(isStr((words->word+words->size-1)->str))/*check if valid string*/
 		      			DC+=strlen((words->word+words->size-1)->str) - 2 + 1;/*ignor " in the start and end and add \0*/
 		        }else{	error = true;
-		        		 printf("error: no data was enterd\n");
+		        		 fprintf(stdout,"error: no data was enterd\n");
 		        	}
             }
 	}

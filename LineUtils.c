@@ -7,11 +7,11 @@ the function update the words structer,put the pointer to next word in the added
 */
 boolean getword(lineWords *words){
 
-	boolean find = false;/*find first word*/
-	char *s = NULL,*e=NULL;/*start and end pointers for the requaierd word*/
-	char *line=NULL;/*pointer to char in line*/
-	int i=0;/*index*/
-	(words->word+words->size-1)->str=NULL;
+	boolean find = false;			/*find first word*/
+	char *s = NULL,*e=NULL;			/*start and end pointers for the requaierd word*/
+	char *line=NULL;			/*pointer to char in line*/
+	int i=0;				/*index*/
+	(words->word+words->size-1)->str=NULL;	/*init the pointer to the new string*/
 	if(words->size==1)/*if were finding the first word look for the first end*/
 		line = (words->word+words->size-1)->end;
 	else line = (words->word+words->size-2)->end;
@@ -25,7 +25,7 @@ boolean getword(lineWords *words){
 						line = s+strlen(s)-1;
 						while(*line != '\"') line--;
 						line++;
-					}else {printf("error in syntax\n");
+					}else {fprintf(stdout,"error in syntax\n");
 							return false;
 							}
 			}
@@ -33,15 +33,15 @@ boolean getword(lineWords *words){
 		 }else line++;
 	}
 	if(find){/*creat word*/
-		(words->word+words->size-1)->str = (char*)malloc(sizeof(char)*(e-s+1));
+		(words->word+words->size-1)->str = (char*)malloc(sizeof(char)*(e-s+1));/*creat allocation for new word*/
 		allcERR((words->word+words->size-1)->str);  
 		(words->word+words->size-1)->end = e;
-		while(s!=e){
+		while(s!=e){/*copy the word until the end*/
 			*((words->word+words->size-1)->str+i) = *s;
 			s++;
 			i++;
 		}
-		*((words->word+words->size-1)->str+i) = '\0';
+		*((words->word+words->size-1)->str+i) = '\0';/*add end of string value*/
 	}	
 	return find;
 }
@@ -55,15 +55,15 @@ the function update the words argument and allocate space for new word.
 returns if there is a nex word in line and update words */
 boolean getNextWordInLine(char* line,lineWords *words){
 	
-	if(words->size==0){
+	if(words->size==0){/*if first word in words*/
         	words->word = malloc(sizeof(lineWord));
         	allcERR(words->word);
-        	words->word->end=line;
+        	words->word->end=line;/*save the start of line in the end parameter onlt for first word*/
         }
 	words->size++;/*move to next word*/
-   	words->word = realloc(words->word,(words->size) *sizeof(lineWord));
-   	allcERR(words->word);
-	return (getword(words));
+   	words->word = realloc(words->word,(words->size) *sizeof(lineWord));/*update memory allocation*/
+   	allcERR(words->word);/*check allocation success*/
+	return (getword(words));/*return if next word exist*/
 }
 
 
@@ -89,10 +89,10 @@ int isReg(char *str){
 	
 	int i=0;
 	for(i=0;i<REG_NUM;i++){
-		if(strcmp(reg[i],str) == 0)
+		if(strcmp(reg[i],str) == 0)/*str is a register rerun his number*/
 			return i;
 		}
-	return -1;
+	return -1;/*didnt find register*/
 }
 
 
