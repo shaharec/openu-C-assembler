@@ -209,6 +209,7 @@ boolean syntax_chack (char *buff, int row_number)
     		/*No source operand, 2 Target operand.*/
     		case com_jmp:/*jmp command*/
     		case com_bne:/*ben command*/
+    		case com_jsr:/*jsr command*/
     		{
     			/*Test the only argument and update the flag.*/
 			if ((address_check(&first_char, &last_char, TowAddMet, ONLY,&comma_count, row_number) == false) && (error == true)) 
@@ -227,7 +228,6 @@ boolean syntax_chack (char *buff, int row_number)
     		case com_inc:/*inc command*/
     		case com_dec:/*dec command*/
     		case com_red:/*red command*/
-    		case com_jsr:/*jsr command*/
     		{
     			/*Test the only argument and update the flag.*/
 			if ((address_check(&first_char, &last_char, ThreeAddMet, ONLY, &comma_count, row_number) == false) && (error == true)) 

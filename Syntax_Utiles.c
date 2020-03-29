@@ -45,10 +45,11 @@ void Next_last_Char(char ** last_char)
 Output: Verify if correct input for the operator, false if incorrect. Promotes pointer values.*/		    	
 boolean address_check(char **first_char, char **last_char,int check_num ,int op_num, int *comma_count, int row_number)
 {
-	int len, comm_checker, op_position;
-	char *operator = NULL;
-	boolean flag = false;
-	
+	int len, comm_checker, op_position;	/*len: length of string,comm_checker : num that represent command , op_position: num that represent operand number*/
+	char *operator = NULL;				/*string that contain operator*/
+	boolean flag = false;				/*flag for no error */
+	char num[MAX_DIRECT_CELLS]={0};			/*num array for direct operand #*/
+	int i=0;							/*index i*/
 	/*Promotions indicate the beginning of the first character of the word and the last letter of the word. */
 	*first_char=*last_char;		
     	Next_First_Char(first_char, comma_count);
@@ -117,16 +118,30 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 	    	{
 			(*first_char)++; 
 			*last_char=*first_char;			
-					
-			if (**last_char == '-')/*Check if the number is negative*/		
-				(*last_char)++;		
+			i=0;/*init index*/		
+			if (**last_char == '-'){/*Check if the number is negative*/		
+				num[i]=**last_char;
+				i++;
+				(*last_char)++;
+				}		
 			
 			/*Passing the pointer over the number to the end*/
 			while (**last_char>='0' && **last_char <= '9') 
  			{
+    				if(MAX_DIRECT_CELLS>i){
+    					num[i]=**last_char;
+						i++;
+					}
     				(*last_char)++;
        				flag = true;
-    			}	
+    			}
+    		/*check num bits*/
+    		if(i>=MAX_DIRECT_CELLS) flag=false;/*if the number is bigger the allowed*/
+			else{	num[i] = '\0';
+				if(atoi(num)>MAX_12_BIT || atoi(num) > MIN_12_BIT){/*if the number is not 12 signe bits- error*/
+				flag = false;
+				}
+			}	
     			
     			/*Checking whether we have reached the end of the line or a semicolon and an error message is returned.*/
     			while(**last_char!=',' && **last_char!=';' && **last_char!='\n' && **last_char!='\0' )
@@ -546,26 +561,43 @@ boolean next_num (char **first_char, char **last_char,int * comma_count, int row
     		return false;
 	}		
 }
-
 	
 /*Input: Gets Pointer to the beginning and end of an argument, comma counter and line number.
 Output: Returns true if the argument sent is true number, otherwise false.
 Promotes pointer values untill the next comma.*/
 boolean isNum (char **temp, int row_number)
 {
-	boolean flag = false;		
-	
+	boolean flag = false;			/*error flag*/	
+	char num[MAX_DATA_CELLS]={0};	/*contain the number in string withot -,+ simboles*/
+	int i=0;						/*index*/
 	/*Loop for passing on white characters.*/
 	while(**temp == ' ' || **temp == '\t') (*temp)++;
 	
 	/*If meets '+' or '-', you will advance the pointer.*/
-	if (**temp == '+' || **temp== '-') (*temp)++;	
+	if (**temp == '+' || **temp== '-'){ 
+	num[i] = **temp;
+	i++;
+	(*temp)++;
+	}
+		
 	
 	/*If a numeric value appears, the flag will update.*/ 
 	while(**temp>='0' && **temp <= '9')
 	{
+		if(i<MAX_DATA_CELLS){/*copy number to char array*/
+			num[i] = **temp;
+			i++;
+			}
 		(*temp)++;
-		flag = true;
+		if(!flag)
+			flag = true;
+	}
+	
+	if(i>=MAX_DATA_CELLS) flag=false;/*if the number is bigger the allowed*/
+	else{	num[i] = '\0';
+		if(atoi(num)>MAX_15_BIT || atoi(num) > MIN_15_BIT){/*if the number is not 15 signe bits- error*/
+			flag = false;
+		}
 	}
 	
 	/*We will run until the next comma / semicolon / end line as long as it is a valid number.*/
