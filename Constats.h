@@ -1,6 +1,6 @@
 /*all constants of the assembler program*/
 #define LB_NAME_SIZE 	31	 	/*size of lable name*/
-#define LINE_LEN 	81		/*max size of line*/
+#define LINE_LEN 	82		/*max size of line*/
 #define OP_SIZE 	16		/*number of command operation in the assembler*/
 #define OP_NAME_SIZE 	5		/*max size of command operatuin name*/
 #define RAM_WORD_SIZE 	15		/*size of word in the ram memory in bits*/
