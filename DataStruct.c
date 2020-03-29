@@ -108,6 +108,9 @@ boolean addToEnT(char* label){/*add lable to entry table*/
 	if(labelAd==NULL){/*if label doesnt exist*/
 		fprintf(stdout,"entry label does not exsist: %s\n",label);
 		return false;
+	}else if(labelAd->labelType == EX_LABEL){/*check if label is entry-as writing in the forom*/
+		fprintf(stdout,"label defined as extern and entry %s\n",label);
+		return false;
 	}else if(enT == NULL){
 		
 		enT = (enTable*)malloc(sizeof(enTable));
