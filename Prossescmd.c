@@ -30,12 +30,11 @@ and preform the first pass.
 in the first pass the function fill the lable table and checks the syntax of the file */
 boolean firstPass(FILE *fp){
 
-	char buff[LINE_LEN+1];
-	boolean error = false,passError = false, synError=false;
+	char buff[LINE_LEN+1]; 					/*buffer for input max len is max len +1 for checking longer lines*/
+	boolean error = false,passError = false, synError=false;/*error : if at least one error ,passError: if in the pass logic Error,synError: if in the syntasx Error*/
 	int fIndex=0;/*file line index*/
 	IC=100;	/*counter for memory place init 100 place*/
 	DC=0;	/*counter for label place init 100 place*/
-	/*printf("************first pass************\n");print first pass*/
 	while (fgets(buff,LINE_LEN+1, fp) != NULL ) /*read line to buffer*/
 	{
 		fIndex++;
@@ -47,7 +46,6 @@ boolean firstPass(FILE *fp){
 	}
 	if(!error){/*if didnt recived error*/
 		updateDataLabels(IC);
-		/*printLbTable();print labels table- for check*/
 	}
 	return !error;
 }
@@ -59,13 +57,12 @@ and preform the second pass of the assembler.
 if an error hase occured retrun false else true*/
 boolean secondPass(FILE *fp){
 
-	char buff[LINE_LEN];
-	boolean error = false,secError = false;
-	int fIndex=0;
+	char buff[LINE_LEN];			/*buffer for input*/
+	boolean error = false,secError = false;	/*error: if there is an error in second pass,secError : error in line */
+	int fIndex=0;				/*row counter*/
 	fseek(fp,0,SEEK_SET);/*return to start of the file*/
 	DC=IC;			/*end of instructions memory from first pass*/
 	IC=MEMORY_START;	/*counter for memory place init 100 place*/
-	/*printf("************second pass************\n");print start of second line - for check*/
 	while (fgets(buff,LINE_LEN, fp) != NULL ) 
 	{
 		fIndex++;
@@ -74,9 +71,6 @@ boolean secondPass(FILE *fp){
 			error = true;
 	}
 	updateRAMCounters();/*update the sum of counters*/
-	/*check functions-print tabels
-	printExT();
-	printEnT();*/
 	return !error;
 }
 

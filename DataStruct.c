@@ -64,11 +64,6 @@ boolean addToMemory(unsigned int data,int *address){
 		(memory->word + memory->size-1)->data =data;
 		}
 	*address+=1;/*add to memory couner 1(DC or IC)*/
-		
-	/*code for checking the labels and binery representation:*//*
-	printf("address:%d  data: %d bin data: ",(memory->word +memory->size-1)->address,data);
-	printBinary((memory->word + memory->size-1)->data);
-	printf("\n");*/
 	return true;
 }
 
@@ -311,11 +306,9 @@ the DC should contain the last address of the memory and the IC should contain t
 of instructions*/
 void updateRAMCounters(void){
 	
-	if(memory != NULL){
-		memory->instructionC = IC-MEMORY_START;
-		memory->dataC = DC-IC;
-		/*check printf function- print the values
-		printf("instructionC: %d dataC: %d\n",memory->instructionC,memory->dataC);*/
+	if(memory != NULL){/*if RAM is not empty*/
+		memory->instructionC = IC-MEMORY_START;/*number of instruction commands*/
+		memory->dataC = DC-IC;/*number of data commends*/
 	}
 }
 

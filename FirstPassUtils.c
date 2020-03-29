@@ -137,7 +137,6 @@ boolean handleIC(lnType lineType,char *line,lineWords *words){
 		        	}
             }
 	}
-	/*printf("IC:     %d\n",IC); check the IC counetr in first pass*/
 	return !error;
 
 }
