@@ -329,21 +329,24 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 		
     	/*Placing a string in the "command" array.*/
     	len=*last_char-*first_char;
-    	strncpy(command, *first_char, len);
-    	
-    	/*Saving a number representing a command. Performed using the function "Command_check"*/
-    	comm_checker=Command_check(command);
-    
-    	
-    	
-    	/*Check if the "command" string is a language-defined executable. Returns false without error message*/
-    	if ((comm_checker>= com_mov) && (comm_checker <= guid_extern))
+    	if (len<=MAX_COMMAND)
     	{
-    		/*Prints an error if set to label*/
-    		if (**last_char ==':' && (*colon_count==1)) 
-    			fprintf(stdout,"Row %d: Laibel is a reserv word.\n", row_number);
+	    	strncpy(command, *first_char, len);
+	    	
+	    	/*Saving a number representing a command. Performed using the function "Command_check"*/
+	    	comm_checker=Command_check(command);
+	    
+	    	
+	    	
+	    	/*Check if the "command" string is a language-defined executable. Returns false without error message*/
+	    	if ((comm_checker>= com_mov) && (comm_checker <= guid_extern))
+	    	{
+	    		/*Prints an error if set to label*/
+	    		if (**last_char ==':' && (*colon_count==1)) 
+	    			fprintf(stdout,"Row %d: Laibel is a reserv word.\n", row_number);
 
-    		return false;
+	    		return false;
+	    	}
     	}
     	
     	if (correct_lable==true)
