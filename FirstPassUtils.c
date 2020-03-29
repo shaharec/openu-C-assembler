@@ -1,8 +1,10 @@
 #include "FirstPassUtils.h"
 
 /*input	:char* line: raw line
-	 	 int findex: index of line in the file
-output	:boolean value of success or failier of first pass */
+	 	 		 int findex: index of line in the file
+output	:boolean value of success or failier of first pass
+the function preform the first pass logic.
+count RAM words and fill the label table */
 boolean lineFirstPass(char* line, int findex){
    
         lineWords *words = NULL;		/*lineWords pointer to structure*/
@@ -18,17 +20,17 @@ boolean lineFirstPass(char* line, int findex){
         		strcpy(label,(words->word+words->size-1)->str);
         		label[strlen(label)-1] = '\0';  /*remove : at the end of label*/
           	  	if(getNextWordInLine(line,words)){/*if word in the place i exist*/
-            			if(isCmd((words->word+words->size-1)->str)!=-1){
-            				if(addLb(label, INST_LABEL))
-            					error = !handleIC(INST,line,words);
+            			if(isCmd((words->word+words->size-1)->str)!=-1){/*check if command*/
+            				if(addLb(label, INST_LABEL))/*add instruction label*/
+            					error = !handleIC(INST,line,words);/*update instruction counter*/
             				else error = true;
             			}else{/*not command after label*/
-            				if((strcmp((words->word+words->size-1)->str,DATA_CMD)==0) || (strcmp((words->word+words->size-1)->str,STR_CMD)==0)){
-            					if(addLb(label, DATA_LABEL))
-            						error = !handleIC(DATA,line,words);
+            				if((strcmp((words->word+words->size-1)->str,DATA_CMD)==0) || (strcmp((words->word+words->size-1)->str,STR_CMD)==0)){/*check if data command*/
+            					if(addLb(label, DATA_LABEL))/*add data label*/
+            						error = !handleIC(DATA,line,words);/*update data counter*/
             					else error = true;
             				}else if(strcmp(((words->word+words->size-1)->str),EXT_CMD) == 0){/*external line*/
-          	  						if(getNextWordInLine(line,words)){
+          	  						if(getNextWordInLine(line,words)){/*get external label name*/
           	  							if(labelExist((words->word+words->size-1)->str)!=NULL){/*if label already exsist*/	
             									if(labelp->labelType!=EX_LABEL){/*if the lable type is not external*/
             										error = true;
