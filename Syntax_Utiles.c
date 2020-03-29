@@ -228,6 +228,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     				fprintf(stdout,"Row %d - Argument %d: The argument type is not supported for this command.\n", row_number, op_position+1);
     				Next_last_Char(last_char);/*Promote the last character to the next white character or comma or semicolon or sentence end.*/
     				
+    				free(operator);
     				return false;
     			}
 			
@@ -256,6 +257,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 			
 		/*A case where none of the options are available*/		
 		fprintf(stdout,"Row %d - Argument %d: The operand is not properly configured.\n", row_number, op_position+1);
+		
 		free(operator);
 		return false;
 	   			
@@ -309,14 +311,21 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 	char * temp;
 		
 	/*Check if the argument is a valid label and update the flag.*/
-	correct_lable = islable (first_char, last_char, row_number);
+	if (**first_char != '.')
+		correct_lable = islable (first_char, last_char, row_number);
 	
-	/*If the word is not a label, we will move the pointer to the last character at the end of the word.*/
-	if (correct_lable == false)
+	else
 	{
 		*last_char=*first_char;
 		Next_last_Char(last_char);
 	}
+	
+	/*If the word is not a label, we will move the pointer to the last character at the end of the word.
+	if (correct_lable == false)
+	{
+		*last_char=*first_char;
+		Next_last_Char(last_char);
+	}*/
 		
     	/*Placing a string in the "command" array.*/
     	len=*last_char-*first_char;
@@ -328,8 +337,6 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
     	
     	
     	/*Check if the "command" string is a language-defined executable. Returns false without error message*/
-    	
-    	/*Check if the "command" string is a language-defined executable. Returns false */
     	if ((comm_checker>= com_mov) && (comm_checker <= guid_extern))
     	{
     		/*Prints an error if set to label*/
@@ -382,8 +389,15 @@ boolean islable (char **first_char,char **last_char, int row_number)
 	*last_char = *first_char; /*Update pointer to last character to pointer to first character.*/
 	
 	/*An error will be returned if a tag starts with '.'*/
-	if (**last_char == '.')
+	if ((**last_char>='A' && **last_char<='Z') || (**last_char>='a' && **last_char<='z'))
+		(*last_char)++;
+
+	else
+	{
+		fprintf (stdout,"Row: %d: Invalid label.\n", row_number);	
+		Next_last_Char(last_char);
 		return false;
+	}
 	
 	/*Enter the loop only if the word consists of letters or numbers*/	
 	while (((**last_char>='0' && **last_char<='9') || (**last_char>='A' && **last_char<='Z') || (**last_char>='a' && **last_char<='z')) && **last_char!=';' && **last_char!='\n' && **last_char!='\0')
@@ -393,7 +407,9 @@ boolean islable (char **first_char,char **last_char, int row_number)
 		/*An error message will be returned if the label length is longer than allowed.*/
 		if ((*last_char - *first_char) > LB_NAME_SIZE)
 		{
-			fprintf (stdout,"Row: %d: Invalid label.\n", row_number);
+			fprintf (stdout,"Row: %d: Invalid label, Label is too long.\n", row_number);
+			
+			Next_last_Char(last_char);
 			return false;
 		}
 	}
