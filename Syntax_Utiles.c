@@ -129,7 +129,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     			}	
     			
     			/*Checking whether we have reached the end of the line or a semicolon and an error message is returned.*/
-    			while(**last_char!=';' && **last_char!='\n' && **last_char!='\0' && **last_char!=',')
+    			while(**last_char!=',' && **last_char!=';' && **last_char!='\n' && **last_char!='\0' )
     			{
     				/*If it is not a white character or number we will update the flag.*/
     				if ((**last_char<'0' || **last_char > '9') && **last_char!='\t' && **last_char!=' ')
@@ -161,7 +161,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 		}
 			    	
 		/*Check if this is an indirect register addressing.*/	
-		else if ((**first_char=='*') ) 
+		else if (**first_char=='*')
 		{	
 	    		(*first_char)++; 
 	    		
@@ -181,7 +181,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 	    		
 	    		/*Saving a value in a dynamic memory variable.*/
 			strncpy(operator, *first_char, len);
-			 
+			
 			/*Check if the value is Register if no appropriate error message is printed and false returned.*/  	
 			if (check_num!=TowAddMet && check_num!=ThreeAddMet && check_num!=fourAddMet)
     			{
@@ -218,8 +218,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 		
 		/*Saving a value in a dynamic memory variable.*/
 		strncpy(operator, *first_char, len);
-		
-		
+
 		/*Check if this is a direct register addressing.*/
 		if (isResinger(operator) == true)
 		{
