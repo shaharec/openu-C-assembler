@@ -30,13 +30,13 @@ and preform the first pass.
 in the first pass the function fill the lable table and checks the syntax of the file */
 boolean firstPass(FILE *fp){
 
-	char buff[LINE_LEN];
+	char buff[LINE_LEN+1];
 	boolean error = false,passError = false, synError=false;
 	int fIndex=0;/*file line index*/
 	IC=100;	/*counter for memory place init 100 place*/
 	DC=0;	/*counter for label place init 100 place*/
 	/*printf("************first pass************\n");print first pass*/
-	while (fgets(buff,LINE_LEN, fp) != NULL ) /*read line to buffer*/
+	while (fgets(buff,LINE_LEN+1, fp) != NULL ) /*read line to buffer*/
 	{
 		fIndex++;
 		synError = !syntax_chack (buff, fIndex);

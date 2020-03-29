@@ -12,7 +12,10 @@ boolean syntax_chack (char *buff, int row_number)
 	int len=0;					/*A numeric variable that holds the length of each word.*/
 	boolean error = true, labled = false;		/*Flags for saving error and label appearances.*/
 	
-	/*printf("%d.%s", row_number, buff); delet*/
+	if(strlen(buff)>LINE_LEN-1){/*check line length*/
+		fprintf(stdout,"Row %d: max line length is %d the line is bigger\n",row_number,(LINE_LEN-1));
+		error = false;
+	}
 	
 	/*Find the first character in the next word.*/
 	first_char=buff;

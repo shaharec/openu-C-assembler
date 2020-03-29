@@ -447,7 +447,6 @@ boolean isString (char **first_char, char **last_char, int *comma_count, int row
 	Next_First_Char(first_char, comma_count);
 	*last_char=*first_char;
 	
-	
 	if (**last_char == '\"') 
 	{	
 		/*Check if we have reached the end of a line.*/
@@ -473,6 +472,11 @@ boolean isString (char **first_char, char **last_char, int *comma_count, int row
 				flag = true;	
 		}
 		
+		/*check illigal commas*/
+		if(*comma_count > 0){
+			fprintf(stdout,"Row %d: Illegal comma.\n", row_number);
+			flag = false;
+		}
 		/*If there are at least 2 quotation marks and after the string no further arguments will be returned true.*/
 		if (quote_count>=2 && flag == true)
 			return true;
