@@ -22,7 +22,7 @@
 typedef enum boolean{/*define type of boolean*/
 false,true}boolean;
 
-typedef enum cmdType{com_mov=0, com_cmp, com_add, com_sub, com_lea, com_clr, com_not, com_inc, com_dec, com_jmp, com_bne, com_red, com_prn, com_jsr, com_rts, com_stop, guid_data, guid_string, guid_entry, guid_extern}cmdType; /*Number represents action codes.*/
+typedef enum cmdType{com_mov=0, com_cmp, com_add, com_sub, com_lea, com_clr, com_not, com_inc, com_dec, com_jmp, com_bne, com_red, com_prn, com_jsr, com_rts, com_stop, guid_data, guid_string, guid_entry, guid_extern}cmdType; /*Number represents action codes for syntax check.*/
 
 typedef enum AddMet{OneAddMet = 1, TowAddMet, ThreeAddMet, fourAddMet }AddMet; /*Several types of addressing methods*/
 
@@ -42,7 +42,7 @@ typedef struct labelAd{/*store the labels and address*/
 }labelAd;
 
 
-typedef struct labelTable{/*tbale of label*/
+typedef struct labelTable{/*table of label*/
 	int size;/*size of lable table*/
 	labelAd* labelAd;/*a pointer to the lable array*/
 }labelTable;
@@ -52,17 +52,17 @@ typedef struct exCall{/*external label call*/
 	char label[LB_NAME_SIZE];/*name of the lable*/
 }exCall;
 
-typedef struct exTable{/*tbale of external label*/
+typedef struct exTable{/*tabel of external label calls*/
 	int size;/*size of the external lable*/
 	exCall* exCall;/*a pointer to the array of external lables call*/
 }exTable;
 
-typedef struct lineWord{/*tbale of words in line*/
+typedef struct lineWord{/* word in lineWords*/
 	char *str;/*contain the string of the word*/
 	char *end;/*pointer to the end of string in the original line*/
 }lineWord;
 
-typedef struct lineWords{/*tbale of words in line*/
+typedef struct lineWords{/*table of words in line*/
 	int size;/*number of words in the structer*/
 	lineWord *word;/*a pointer to the array of words*/
 }lineWords;
@@ -72,7 +72,7 @@ typedef struct RAMword{/*RAM word in memory*/
 	unsigned int data: RAM_WORD_SIZE;/*data of the RAM word*/
 }RAMword;
 
-typedef struct RAM{/*tbale of label*/
+typedef struct RAM{/*table of RAM words*/
 	int size;/*number of RAM words in the memory*/
 	int instructionC;/*number of instruction words*/
 	int dataC;/*number of data words*/
@@ -83,7 +83,7 @@ typedef struct entryLine{/*entry line in the entry lable call */
 	char label[LB_NAME_SIZE];/*name of label*/
 }entryLine;
 
-typedef struct enTable{/*tbale of entry labels*/
+typedef struct enTable{/*table of entry labels*/
 	int size;/*size of entry calls*/
 	entryLine* line;/*entry table line*/
 }enTable;

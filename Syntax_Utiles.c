@@ -337,6 +337,7 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 		
     	/*Placing a string in the "command" array.*/
     	len=*last_char-*first_char;
+    
     	if (len<=MAX_COMMAND)
     	{
 	    	strncpy(command, *first_char, len);
@@ -357,13 +358,15 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 	    	}
     	}
     	
-    	if (correct_lable==true)
+    	if (correct_lable==true) /*if the label is correct*/
     	{
-    		temp=*last_char;
+    		temp=*last_char; /*update the local pointer*/
     		
-	    	if (**last_char == ':')
+	    	if (**last_char == ':') 
 	    	{
-	    		temp++; /*.*/
+	    		temp++; 
+	    		
+	    		/*if on white charecters, semicolon or end of row update the flag and go to the end of the row.*/
 	    		if (*temp!='\t' && *temp!=' ' && *temp!=';' &&  *temp!='\n' && *temp!='\0')
 	    		{
 	    			correct_lable=false; 
@@ -371,13 +374,13 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 	    		}
 	    	}
 	    		
-	    	else
+	    	else /*if ther is no colon update the flag*/
 	    	{
 	    		correct_lable=false;
 	    		Next_last_Char(&temp);
 	    	}	
     		
-    		*last_char = temp;
+    		*last_char = temp; /*update the last_char position.*/
     	}
     	
     	
@@ -399,10 +402,11 @@ boolean islable (char **first_char,char **last_char, int row_number)
 {
 	*last_char = *first_char; /*Update pointer to last character to pointer to first character.*/
 	
-	/*An error will be returned if a tag starts with '.'*/
+	/*if start whit a letter move foword */
 	if ((**last_char>='A' && **last_char<='Z') || (**last_char>='a' && **last_char<='z'))
 		(*last_char)++;
-
+	
+	/*An error will be returned if a tag starts with a charecter diferent then a letter.*/
 	else
 	{
 		fprintf (stdout,"Row %d: Invalid label.\n", row_number);	
@@ -432,15 +436,15 @@ boolean islable (char **first_char,char **last_char, int row_number)
 Output: Returns true if the received row sets a valid string. False if not. Promotes pointer values*/
 boolean isString (char **first_char, char **last_char, int *comma_count, int row_number)
 {
-	int quote_count=0;
-	boolean flag = true;
+	int quote_count=0;	/*a counter to count quotation mark*/
+	boolean flag = true; 	/*flag to represent error.*/
 	
 	/*We will move the pointer to the beginning of a word and point to the end of a word for the begining of the next word*/
 	*first_char = *last_char;
 	Next_First_Char(first_char, comma_count);
 	*last_char=*first_char;
 	
-	if (**last_char == '\"') 
+	if (**last_char == '\"') /*if the string opening whit quotation mark*/
 	{	
 		/*Check if we have reached the end of a line.*/
 		while(**last_char != '\n' && **last_char != '\0')
@@ -497,8 +501,8 @@ boolean isString (char **first_char, char **last_char, int *comma_count, int row
 Output: Returns true if the received row is set correctly as a row of numbers separated by commas. Otherwise return false. Promotes pointer values*/
 boolean next_num (char **first_char, char **last_char,int * comma_count, int row_number)
 {
-	boolean flag = true;
-	int num_count=0;
+	boolean flag = true;	/*flag to represent error.*/
+	int num_count=0;	/*couting the valid mumber.*/
 
 	/*We will move the pointer to the beginning of a word and point to the end of a word for the begining of the next word*/
 	*first_char=*last_char;
@@ -565,8 +569,9 @@ Promotes pointer values untill the next comma.*/
 boolean isNum (char **temp, int row_number)
 {
 	boolean flag = false;			/*error flag*/	
-	char num[MAX_DATA_CELLS]={0};	/*contain the number in string withot -,+ simboles*/
-	int i=0;						/*index*/
+	char num[MAX_DATA_CELLS]={0};		/*contain the number in string withot -,+ simboles*/
+	int i=0;				/*index*/
+	
 	/*Loop for passing on white characters.*/
 	while(**temp == ' ' || **temp == '\t') (*temp)++;
 	
@@ -699,7 +704,7 @@ cmdType Command_check(char * command)
 Output: Reset the string.*/
 void zero_str (char * str, int len)
 {
-	int i;/*Index*/
+	int i;	/*Index*/
 	
 	/*A loop that passes through a set of characters and initializes its contents.*/
 	for(i=0; i<len; i++)
