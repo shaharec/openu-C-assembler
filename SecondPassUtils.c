@@ -43,7 +43,7 @@ boolean lineSecondPass(char* line, int findex){
            }
         freeWords(words);
         if(error)
-		fprintf(stdout,"Row %d: error in row.\n",findex);
+		fprintf(stdout,"Row %d: The error is indicated in the row above.\n",findex);
 	return !error;/*retun no error has occurd in line*/	
 }
 
@@ -60,7 +60,7 @@ boolean handleRAMWords(lnType lineType,char *line,lineWords *words){
 		return InstRAMWords(line,words);
 	else if(lineType==DATA)
 		return DataRAMWords(line,words);
-	fprintf(stdout,"only handle data or instruction RAM words\n");
+	fprintf(stdout,"handleRAMWords only handle data or instruction RAM words\n");
 	return false;
 		
 }
@@ -101,7 +101,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 									if(reg!=-1){
 											RAMWord[0]|=(A_THREE<<SOAM_SBIT);/*set addressing method*/
 											RAMWord[2] = getRegWord(reg,SOR_SBIT);/*get second information word*/
-									}else{ 	fprintf(stdout,"error: wrong input * before reg\n");
+									}else{ 	fprintf(stdout,"error: wrong input * before reg : %s\n",(words->word+words->size-1)->str);
 											return false;
 										}
 							}else if (*((words->word+words->size-1)->str) == '#' ){/*if seond operand is direct word*/
@@ -125,7 +125,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 						RAMWord[1]=getLabelWord(label);
 						if(label->labelType==EX_LABEL)/*if external label add to external call table*/
 							addToExT(label->label,IC+numWords-1);	
-					}else {	fprintf(stdout,"error: unknown operand\n");
+					}else {	fprintf(stdout,"error: unknown operand : %s\n",(words->word+words->size-1)->str);
 							return false;
 							}
 				}			
@@ -155,7 +155,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 											if(reg!=-1){/*add addressing method and to existing information word*/
 												RAMWord[0] |=(A_THREE<<SOAM_SBIT);
 												RAMWord[1] |= getRegWord(reg,SOR_SBIT);
-											}else{ 	fprintf(stdout,"error: wrong in put * before reg\n");
+											}else{ 	fprintf(stdout,"error: wrong in put * before reg : %s\n",(words->word+words->size-1)->str);
 													return false;
 													}
 										}else{/*not *register or register*/ 
@@ -169,7 +169,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 												}else if (*((words->word+words->size-1)->str) == '#' ){/*check if second operand is direct word*/
 																RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
 																RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
-												}else {fprintf(stdout,"error: unknown operand\n");
+												}else {fprintf(stdout,"error: unknown operand %s\n",(words->word+words->size-1)->str);
 																return false;
 															}
 											}
@@ -212,7 +212,7 @@ boolean InstRAMWords(char *line,lineWords *words){
 										if(reg!=-1){
 											RAMWord[0] |= (A_THREE<<SOAM_SBIT);
 											RAMWord[1] = getRegWord(reg,SOR_SBIT);
-										}else{ 	fprintf(stdout,"error: wrong in put * before reg\n");
+										}else{ 	fprintf(stdout,"error: wrong in put * before reg : %s\n",(words->word+words->size-1)->str);
 												return false;
 												}
 									}else if (*((words->word+words->size-1)->str) == '#' ){/*check direct numnber*/
@@ -260,19 +260,19 @@ boolean InstRAMWords(char *line,lineWords *words){
 											if(reg!=-1){/*check if second operand is * register*/
 												RAMWord[0] |= (A_THREE<<SOAM_SBIT);
 												RAMWord[2] = getRegWord(reg,3);
-											}else{	fprintf(stdout,"error: wrong in put * before reg\n");
+											}else{	fprintf(stdout,"error: wrong in put * before reg : %s\n",(words->word+words->size-1)->str);
 													return false;
 													}
 									}else if (*((words->word+words->size-1)->str) == '#' ){/*check if direct word*/
 														RAMWord[0]|=(A_ONE<<SOAM_SBIT);/*adress methode of the first operand*/
 														RAMWord[2]=getDirectWord((words->word+words->size-1)->str);/*get the informatio word for # operand*/ 
-									}else{	fprintf(stdout,"error: unknown operatopr\n");
+									}else{	fprintf(stdout,"error: unknown operatopr %s:\n",(words->word+words->size-1)->str);
 											return false;
 											}
 							}
 						}
 					}else RAMWord[0] |= (A_TWO<<SOAM_SBIT);/*if no second operand*/	
-				}else{ 	fprintf(stdout,"error: unknown operand\n");
+				}else{ 	fprintf(stdout,"error: unknown operand : %s\n",(words->word+words->size-1)->str);
 						return false;
 						}
 						

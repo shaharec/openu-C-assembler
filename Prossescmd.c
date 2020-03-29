@@ -40,11 +40,9 @@ boolean firstPass(FILE *fp){
 	{
 		fIndex++;
 		synError = !syntax_chack (buff, fIndex);
-		if(synError && !error)
-			error =true;
-		if(!error)	
+		if(!synError)/*if no syntax error*/	
 			passError = !lineFirstPass(buff,fIndex);
-		if(passError && !error)
+		if((passError || synError) && !error)/*if an error has occured*/
 			error =true;	
 	}
 	if(!error){/*if didnt recived error*/
@@ -62,16 +60,18 @@ if an error hase occured retrun false else true*/
 boolean secondPass(FILE *fp){
 
 	char buff[LINE_LEN];
-	boolean error = false;
+	boolean error = false,secError = false;
 	int fIndex=0;
 	fseek(fp,0,SEEK_SET);/*return to start of the file*/
 	DC=IC;			/*end of instructions memory from first pass*/
 	IC=MEMORY_START;	/*counter for memory place init 100 place*/
 	/*printf("************second pass************\n");print start of second line - for check*/
-	while (fgets(buff,LINE_LEN, fp) != NULL && !error) 
+	while (fgets(buff,LINE_LEN, fp) != NULL ) 
 	{
 		fIndex++;
-		error = !lineSecondPass(buff,fIndex);	
+		secError = !lineSecondPass(buff,fIndex);
+		if(!error && secError)/*if there was an error in row and no error until now*/	
+			error = true;
 	}
 	updateRAMCounters();/*update the sum of counters*/
 	/*check functions-print tabels

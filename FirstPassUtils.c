@@ -75,7 +75,7 @@ boolean lineFirstPass(char* line, int findex){
 	}
 	freeWords(words);/*free words allocation*/
 	if(error)
-		fprintf(stdout,"Row %d: error in row. \n",findex);
+		fprintf(stdout,"Row %d: The error is indicated in the row above. \n",findex);
             	
 	return !error;	
 }

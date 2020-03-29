@@ -28,5 +28,4 @@ Main.o: Main.c DataStruct.h Syntax.h Prossescmd.h
 	gcc -ansi -Wall -pedantic -c Main.c -lm
 
 clean:
-	rm *.o *Prossescmd
-
+	rm *.o
