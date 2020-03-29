@@ -27,10 +27,6 @@ void Next_First_Char(char **first_char, int *comma_count)
 Output: Will advance the pointer to the end of the word, stop if it has a white space, ';' Or ','*/
 void Next_last_Char(char ** last_char)
 {
-	/*If the first character is a comma, the pointer will move forward.*/
-	/*if (**last_char==',')
-		(*last_char)++;*/
-	
 	/*Loop runs on white characters and stops if you meet non-white or end-of-line character.*/	
 	while(**last_char!='\t' && **last_char!=' ' && **last_char!=',' && **last_char!=';' && **last_char!='\n' && **last_char!='\0')
     		(*last_char)++;
@@ -50,6 +46,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 	boolean flag = false;				/*flag for no error */
 	char num[MAX_DIRECT_CELLS]={0};			/*num array for direct operand #*/
 	int i=0;							/*index i*/
+	
 	/*Promotions indicate the beginning of the first character of the word and the last letter of the word. */
 	*first_char=*last_char;		
     	Next_First_Char(first_char, comma_count);
@@ -135,10 +132,11 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     				(*last_char)++;
        				flag = true;
     			}
+    		
     		/*check num bits*/
     		if(i>=MAX_DIRECT_CELLS) flag=false;/*if the number is bigger the allowed*/
 			else{	num[i] = '\0';
-				if(atoi(num)>MAX_12_BIT || atoi(num) > MIN_12_BIT){/*if the number is not 12 signe bits- error*/
+				if(atoi(num)>MAX_12_BIT || atoi(num) < MIN_12_BIT){/*if the number is not 12 signe bits- error*/
 				flag = false;
 				}
 			}	
@@ -206,6 +204,7 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
     				return false;
     			}
 			
+			/*Chack if is it a register*/
 			if (isResinger(operator) == false) 
 			{
 			    	fprintf(stdout,"Row %d - Argument %d: Indirect register addressing is not properly defined.\n", row_number, op_position+1);
@@ -285,14 +284,14 @@ boolean address_check(char **first_char, char **last_char,int check_num ,int op_
 Output: Moving on the characters to the end of the line and  return true if they are white spaces or a note. else false.*/
 boolean to_many_arg(char **temp, int row_number)
 {
-	boolean flag=false;
-	int comma_counter=0;
+	boolean flag=false; 		/*flag to represent error.*/
+	int loc_comma_counter=0;	/*a local counter to find comma. this is not comma_count! */
 	
 	/*Loop for passing on the row until the end ot semicolon.*/
  	while(**temp!=';' && **temp!='\n' && **temp!='\0')					
    	{
    		if (**temp==',') /*Will update the comma counter if there is an extra comma.*/
-   			comma_counter++;
+   			loc_comma_counter++;
    			
    		if (**temp!=' ' && **temp!='\t' && **temp!=',') /*Will update the flag if it is not a non-white or comma character.*/
    			flag = true;
@@ -300,12 +299,12 @@ boolean to_many_arg(char **temp, int row_number)
    		(*temp)++;
    	}
    	
-   	if (flag == false && comma_counter==0) /*If there are only white characters by the end of the line or semicolon.*/
+   	if (flag == false && loc_comma_counter==0) /*If there are only white characters by the end of the line or semicolon.*/
    		return true;
       	
       	
       	/*Print error values in case of an invalid character that came before the end of the line. return false*/
-      	else if (comma_counter>0)
+      	else if (loc_comma_counter>0)
  		fprintf(stdout,"Row %d: Illegal comma.\n", row_number);
       	
       	if (flag == true)	
@@ -321,26 +320,20 @@ boolean to_many_arg(char **temp, int row_number)
 Output: Returns true if the first word in the line is a label, false if otherwise. Will update the counters if necessary and save the first word value in a row in the "command" variable. Promotes pointer values.*/
 boolean def_lable (char ** first_char, char ** last_char, char* command, int * comma_count, int* colon_count,  int row_number)
 {
-	int len=0, comm_checker;
-	boolean correct_lable = false;
-	char * temp;
+	int len=0, comm_checker; 		/*len = lengt of a word, comma_checker = num that represent command */
+	boolean correct_lable = false;		/*flag to represent error.*/
+	char * temp;				/*local pinter to move on the line.*/
 		
 	/*Check if the argument is a valid label and update the flag.*/
 	if (**first_char != '.')
 		correct_lable = islable (first_char, last_char, row_number);
 	
+	/*If not a valid label will advance to the end of the word.*/
 	else
 	{
 		*last_char=*first_char;
 		Next_last_Char(last_char);
 	}
-	
-	/*If the word is not a label, we will move the pointer to the last character at the end of the word.
-	if (correct_lable == false)
-	{
-		*last_char=*first_char;
-		Next_last_Char(last_char);
-	}*/
 		
     	/*Placing a string in the "command" array.*/
     	len=*last_char-*first_char;
@@ -358,7 +351,7 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
 	    	{
 	    		/*Prints an error if set to label*/
 	    		if (**last_char ==':' && (*colon_count==1)) 
-	    			fprintf(stdout,"Row %d: Laibel is a reserv word.\n", row_number);
+	    			fprintf(stdout,"Row %d: Label is a reserv word.\n", row_number);
 
 	    		return false;
 	    	}
@@ -395,7 +388,7 @@ boolean def_lable (char ** first_char, char ** last_char, char* command, int * c
     	/*Check if a label is not set up correctly. return false and prints error.*/
     	else
     	{
-    		fprintf(stdout,"Row %d: Laibel is not properly define.\n", row_number);
+    		fprintf(stdout,"Row %d: Label is not properly define.\n", row_number);
     		return false;
     	}
 }
@@ -412,7 +405,7 @@ boolean islable (char **first_char,char **last_char, int row_number)
 
 	else
 	{
-		fprintf (stdout,"Row: %d: Invalid label.\n", row_number);	
+		fprintf (stdout,"Row %d: Invalid label.\n", row_number);	
 		Next_last_Char(last_char);
 		return false;
 	}
@@ -425,7 +418,7 @@ boolean islable (char **first_char,char **last_char, int row_number)
 		/*An error message will be returned if the label length is longer than allowed.*/
 		if ((*last_char - *first_char) > LB_NAME_SIZE)
 		{
-			fprintf (stdout,"Row: %d: Invalid label, Label is too long.\n", row_number);
+			fprintf (stdout,"Row %d: Invalid label, Label is too long.\n", row_number);
 			
 			Next_last_Char(last_char);
 			return false;
@@ -599,7 +592,7 @@ boolean isNum (char **temp, int row_number)
 	
 	if(i>=MAX_DATA_CELLS) flag=false;/*if the number is bigger the allowed*/
 	else{	num[i] = '\0';
-		if(atoi(num)>MAX_15_BIT || atoi(num) > MIN_15_BIT){/*if the number is not 15 signe bits- error*/
+		if(atoi(num)>MAX_15_BIT || atoi(num) < MIN_15_BIT){/*if the number is not 15 signe bits- error*/
 			flag = false;
 		}
 	}
