@@ -5,4 +5,6 @@ This is an open University of Israel project of making an assembler compiler in 
 ## To run:
 Execute the file `Proccescmd ,space,name` of the `.as ` file without the ending.
 
-
+## Authors:
+- [Shahar Cohen](https://github.com/shaharec)
+- [Regev Aloni](https://github.com/AloniRegev)
