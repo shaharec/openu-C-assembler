@@ -1,5 +1,8 @@
-# openu-mmn-14-C assembler
-programing assignment in c
-this is an open unniversity project of making an assembler in c.
-to run the program you need to execute the file Proccescmd ,space,name of the .as file without the ending.
+# openu mmn 14 C - Assembler compailer project.
+## About:
+This is an open University of Israel project of making an assembler compiler in c.
+
+## To run:
+Execute the file `Proccescmd ,space,name` of the `.as ` file without the ending.
+
 
